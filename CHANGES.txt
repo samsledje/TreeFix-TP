@@ -1,0 +1,42 @@
+TreeFix-VP Change Log
+-----------------------
+
+treefixVP-1.0.0 (2018/2/14)
+-----------------------
+    - initial release
+
+
+Changes from TreeFix-DTL (2018/2/14)
+------------------------------------
+
+treefixVP
+    Renamed treefixDTL executable
+    Removed most options in parser, only need alignment extension, old extension, new extension
+    Changed default smodule to FitchModel
+    Call treefixVP rather than treefix
+
+fitchmodel.py
+    Copy of rangerdtlmodel.py
+    Changed compute_cost() to call fitch.linux executable
+    Removed stree, smap from FitchModel.optimize_model
+    Removed call to CostModel.optimize_model()
+
+treefix_for_VP
+    Renamed treefix to treefix_for_VP - this avoids path collision with treefix and treefixDTL
+    Removed smap and stree as required arguments
+    Changed to common.check_req_options(species=False)
+    Removed stree and gene2species from check_input_tree()
+    Removed stree and gene2species from search_landscape()
+    Removed check_congruent_tree() function, no longer applies
+    Removed 'if flag: return mintree'
+    Removed reading species tree and species map from main()
+    Removed stree and gene2species from calls to optimize_model(), check_input_tree(), and search_landscape() in main
+
+General
+    Removed all ranger executables
+    Removed treefix_compute
+    Removed rangerdtl model from models module
+    Modified setup files to install the proper executables
+    Updated treefixVP.py with version and software info
+    Updated INSTALL.txt, CHANGES.txt, and README.txt
+    Added README.pdf
