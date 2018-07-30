@@ -1,5 +1,5 @@
 TreeFix-VP
-http://compbio.mit.edu/treefix-dtl/
+https://github.com/samsledje/TreeFix-VP
 Mukul Bansal, Samuel Sledzieski, Yi-Chieh Wu,
 with libraries contributed by Matthew Rasmussen
 
