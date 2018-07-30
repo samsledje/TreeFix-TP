@@ -32,9 +32,9 @@ LIBS=-lm
 BISON = bison
 FLEX = flex
 
-PROG=fitch.linux.1
+PROG=fitch.linux
 
-all: $(PROG)
+all: $(PROG) clean
 
 OBJS=util.o fitch.o parse_rtree.o lex_rtree.o \
      arch.o rtree.o info.o  stats.o dist.o \
@@ -54,6 +54,3 @@ parse_%.c: parse_%.y
 
 clean:
 	rm -f *~ $(OBJS) gmon.out $(PROG)
-
-refresh:
-	make clean && make
