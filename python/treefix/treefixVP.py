@@ -14,6 +14,3 @@ if PROGRAM_VERSION_RELEASE != 0:
     PROGRAM_VERSION_TEXT = "%d.%d.%d" % (PROGRAM_VERSION_MAJOR,
                                          PROGRAM_VERSION_MINOR,
                                          PROGRAM_VERSION_RELEASE)
-else:
-    PROGRAM_VERSION_TEXT = "%d.%d" % (PROGRAM_VERSION_MAJOR,
-                                      PROGRAM_VERSION_MINOR)

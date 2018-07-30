@@ -45,10 +45,9 @@ setup(
     description='TreeFix-VP',
     long_description = """
             """,
-    author='Yi-Chieh Wu',
-    author_email='yjw@mit.edu',
-#    url='http://compbio.mit.edu/treefix-dtl/',
-#    download_url='http://compbio.mit.edu/treefix-dtl/pub/sw/treefixDTL-%s.tar.gz' % VERSION,
+    author='Mukul Bansal, Samuel Sledzieski, Yi-Chieh Wu',
+    author_email='samuel.sledzieski@uconn.edu',
+    url='https://www.github.com/samsledje/treefixVP',
 
     classifiers=[
           'Development Status :: 5 - Production/Stable',
