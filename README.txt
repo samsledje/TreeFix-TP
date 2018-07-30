@@ -1,8 +1,7 @@
 TreeFix-VP
 http://compbio.mit.edu/treefix-dtl/
-Yi-Chieh Wu,
+Mukul Bansal, Samuel Sledzieski, Yi-Chieh Wu,
 with libraries contributed by Matthew Rasmussen
-and executables contributed by Mukul Bansal, Samuel Sledzieski
 
 =============================================================================
 ABOUT
