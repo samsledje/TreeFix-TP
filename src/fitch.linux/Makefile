@@ -32,7 +32,7 @@ LIBS=-lm
 BISON = bison
 FLEX = flex
 
-PROG=fitch-score
+PROG=fitch.linux.1
 
 all: $(PROG)
 
@@ -41,7 +41,7 @@ OBJS=util.o fitch.o parse_rtree.o lex_rtree.o \
      labels.o bitset.o hashmap.o
 
 $(PROG): $(OBJS)
-	$(CC) -Wall $(LINKFLAGS) $+ -o ../bin/$(PROG) $(LIBS)
+	$(CC) -Wall $(LINKFLAGS) $+ -o ../../bin/$(PROG) $(LIBS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
