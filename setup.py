@@ -35,7 +35,7 @@ if sys.platform != 'darwin':
 srcs = [os.path.join('src/raxml',fn) for fn in os.listdir('src/raxml')
         if (not os.path.isdir(fn)) and fn.endswith('.c')]
 raxml_module = Extension('treefix_raxml._raxml',
-                         sources=['python/treefix_raxml/raxml.i', 'python/treefix_raxml/tmap.i'] + srcs,
+                         sources=['python/treefix_raxml/raxml.i'] + srcs,
                          extra_link_args=extra_link_args
                          )
                          
