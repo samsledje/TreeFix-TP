@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # This is an example of how to use TreeFix-VP to correct a tree topology.
 #
@@ -6,27 +6,16 @@
 # Make sure tools are compiled and installed before running the commands in
 # this tutorial.  See INSTALL.txt for more information.
 
-# Or you can run from the source directory:
-
-cd ..
-python setup.py build_ext --inplace
-
-# if using Linux
-cp bin/ranger-dtl-U.linux bin/ranger-dtl-U
-# if using Mac
-cp bin/ranger-dtl-U.mac bin/ranger-dtl-U
-# if using Windows (Cygwin)
-cp bin/ranger-dtl-U.exe bin/ranger-dtl-U
-
-cd examples
 export PATH=$PATH:../bin
 export PYTHONPATH=$PYTHONPATH:../python
 
 #=============================================================================
-# Compute the corrected gene tree using RAxML SH statistics and ranger-dtl-U cost model
+# Compute the corrected phylogeny using RAxML SH statistics and fitch.linux cost model
 
 # show help information
+echo TreeFix-VP help: 
 treefixVP -h
+sleep 3
 
 # Options:
 #   Input/Output:
@@ -74,15 +63,31 @@ treefixVP -h
 #                         verbosity level (0=quiet, 1=low, 2=medium, 3=high)
 #     -l <log file>, --log=<log file>
 #                         log filename.  Use '-' to display on stdout.
+echo The following dataset was simulated using FAVITES \(https://github.com/niemasd/FAVITES\)
+sleep 1
+echo RAxML was used to reconstruct a maximum likelihood tree from the multiple sequence alignment
+sleep 1
+echo The MSA and ML tree are used as the inputs of TreeFix-VP to generate the corrected viral phylogeny
+sleep 2 
 
 treefixVP \
-    -A .align \
-    -o .tree.old \
-    -n .tree.new\
+    -A .fasta \
+    -o .raxml \
+    -n .treefix\
     -V1 -l VP_test.log \
-    VP_test.tree.old
+    VP_test.raxml
 
-#=============================================================================
-# Clean up
-
-rm VP_test{.new.tree,.log}
+prefix=Score:
+echo The transmission cost for the RAxML tree is
+foo=$(../bin/fitch.linux test_VP.raxml)
+echo "${foo#"$prefix "}"
+sleep 1
+echo The transmission cost for the TreeFix-VP tree is
+foo=$(../bin/fitch.linux test_VP.treefix)
+echo "${foo#"$prefix "}"
+sleep 1
+echo The actual number of tranmissions is
+foo=$(../bin/fitch.linux test_VP.true_tree)
+echo "${foo#"$prefix "}"
+sleep 1
+echo More information can be found in VP_test.log
