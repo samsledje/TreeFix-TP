@@ -10,6 +10,8 @@ is the one that minimizes the number of necessary transmissions.
 
 The input for TreeFix-VP is a multiple sequence alignment in .fasta format, and a maximum likelihood tree in .newick format.
 
+* The latest version of TreeFix-VP can be found [here](https://github.com/samsledje/TreeFix-VP/releases).
+
 * Installation instructions for TreeFix-VP can be found [here](https://github.com/samsledje/TreeFix-VP/blob/master/docs/INSTALL.txt).
 
 * The manual can be found [here](https://github.com/samsledje/TreeFix-VP/blob/master/docs/TreeFix-VP-Manual.pdf), which includes information on requirements which must be installed.
