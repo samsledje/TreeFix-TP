@@ -1,2 +1,4 @@
 include python/treefix_raxml/tmaps.i
 include src/raxml/axml.h
+include src/raxml/globalVariables.h
+include examples/*

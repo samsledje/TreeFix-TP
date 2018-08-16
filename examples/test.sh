@@ -6,16 +6,13 @@
 # Make sure tools are compiled and installed before running the commands in
 # this tutorial.  See INSTALL.txt for more information.
 
-export PATH=$PATH:../bin
-export PYTHONPATH=$PYTHONPATH:../python
-
 #=============================================================================
 # Compute the corrected phylogeny using RAxML SH statistics and fitch.linux cost model
 
 # show help information
 echo TreeFix-VP help: 
+sleep 2
 treefixVP -h
-sleep 3
 
 # Options:
 #   Input/Output:
@@ -63,10 +60,12 @@ sleep 3
 #                         verbosity level (0=quiet, 1=low, 2=medium, 3=high)
 #     -l <log file>, --log=<log file>
 #                         log filename.  Use '-' to display on stdout.
+
+printf '\n\n'
 echo The following dataset was simulated using FAVITES \(https://github.com/niemasd/FAVITES\)
-sleep 1
+sleep 2
 echo RAxML was used to reconstruct a maximum likelihood tree from the multiple sequence alignment
-sleep 1
+sleep 2
 echo The MSA and ML tree are used as the inputs of TreeFix-VP to generate the corrected viral phylogeny
 sleep 2 
 
@@ -74,8 +73,8 @@ treefixVP \
     -A .fasta \
     -o .raxml \
     -n .treefix\
-    -V1 -l VP_test.log \
-    VP_test.raxml
+    -V1 -l test_VP.log \
+    test_VP.raxml
 
 prefix=Score:
 echo The transmission cost for the RAxML tree is
