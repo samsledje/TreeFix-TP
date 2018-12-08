@@ -8,7 +8,7 @@
 #
 
 import os, sys, shutil
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 # version control
 sys.path.insert(0, os.path.realpath(
