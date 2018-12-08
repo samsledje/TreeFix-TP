@@ -71,7 +71,7 @@ setup(
 	      'treefix_raxml.deps.rasmus',
 	      'treefix_raxml.deps.compbio'],
     py_modules=[],
-    scripts=['bin/treefix_for_VP', 'bin/treefixVP', 'bin/fitch.linux', 'bin/treefixVP'],
+    scripts=['bin/treefix_for_VP', 'bin/treefixVP', 'bin/fitch.linux', 'bin/log_parser'],
     ext_modules=[raxml_module]
     )
 
