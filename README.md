@@ -1,4 +1,4 @@
-# TreeFix-VP
+# TreeFix-TP
 
 
 TreeFix-TP is a program for reconstructing highly accurate infectious disease phylogenetic trees.
