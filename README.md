@@ -22,4 +22,4 @@ The input for TreeFix-TP is a multiple sequence alignment in .fasta format, and 
 
 * An explanation of the theory behind TreeFix-TP can be found [here](https://github.com/samsledje/TreeFix-TP/blob/master/docs/Bansal_CAME_2017.pdf).
 
-* If you have any problems installing or using TreeFix-TP, please submit an issue [here](https://github.com/samsledje/TreeFix-TP/issues) or email samuel.sledzieski@uconn.edu.
+* If you have any problems installing or using TreeFix-TP, please submit an issue [here](https://github.com/samsledje/TreeFix-TP/issues) or email samuel.sledzieski@uconn.edu or mukul.bansal@uconn.edu.
