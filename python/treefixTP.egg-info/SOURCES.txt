@@ -13,7 +13,6 @@ examples/test_TP.raxml
 examples/test_TP.true_tree
 python/treefix/__init__.py
 python/treefix/common.py
-python/treefix/treefixTP.py
 python/treefix/deps/__init__.py
 python/treefix/deps/compbio/__init__.py
 python/treefix/deps/compbio/alignlib.py

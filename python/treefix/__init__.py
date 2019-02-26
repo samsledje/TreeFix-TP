@@ -25,10 +25,10 @@ except ImportError:
 #=============================================================================
 # constants
 
-PROGRAM_NAME = u"TreeFix"
+PROGRAM_NAME = u"TreeFixTP"
 PROGRAM_VERSION_MAJOR = 1
 PROGRAM_VERSION_MINOR = 1
-PROGRAM_VERSION_RELEASE = 10
+PROGRAM_VERSION_RELEASE = 0
 PROGRAM_VERSION = (PROGRAM_VERSION_MAJOR,
                    PROGRAM_VERSION_MINOR,
                    PROGRAM_VERSION_RELEASE)

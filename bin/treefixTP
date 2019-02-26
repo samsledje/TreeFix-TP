@@ -8,12 +8,12 @@ import commands, subprocess
 
 # treefix libraries
 from treefix import common
-from treefix import treefixTP
+from treefix import PROGRAM_VERSION_TEXT
 
 #==========================================================
 # parser
 
-VERSION = treefixTP.PROGRAM_VERSION_TEXT
+VERSION = PROGRAM_VERSION_TEXT
 #commands.getoutput("treefix --version").rsplit()[-1]
 
 def parse_args():
