@@ -1,0 +1,20 @@
+Metadata-Version: 1.1
+Name: treefixTP
+Version: 1.0.0
+Summary: TreeFix-TP
+Home-page: https://www.github.com/samsledje/TreeFix-TP
+Author: Mukul Bansal, Samuel Sledzieski, Yi-Chieh Wu
+Author-email: samuel.sledzieski@uconn.edu
+License: UNKNOWN
+Description: 
+                    
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Operating System :: POSIX
+Classifier: Programming Language :: Python
+Classifier: Topic :: Education

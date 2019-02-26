@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# setup for TreeFix-VP library packages
+# setup for TreeFix-TP library packages
 #
 # use the following to install:
 #   python setup.py build
@@ -13,8 +13,8 @@ from setuptools import setup, Extension
 # version control
 sys.path.insert(0, os.path.realpath(
             os.path.join(os.path.dirname(__file__), "python")))
-from treefix import treefixVP
-VERSION = treefixVP.PROGRAM_VERSION_TEXT
+from treefix import treefixTP
+VERSION = treefixTP.PROGRAM_VERSION_TEXT
 
 # find correct ranger-dtl-U executable
 if not os.path.exists('bin/fitch.linux'):
