@@ -144,13 +144,13 @@ def main():
 
     #log
     print("TreeFix-TP version: %s\n" % VERSION)
-    print "TreeFix-TP executed with the following arguments:"
-    print "%s %s\n" % (os.path.basename(sys.argv[0]), 
+    print("TreeFix-TP executed with the following arguments:")
+    print("%s %s\n" % (os.path.basename(sys.argv[0]), 
                        ' '.join(map(lambda x: x if x.find(' ') == -1 else "\"%s\"" % x, 
-                                    sys.argv[1:])))
-    print "TreeFix command:"
-    print cmd
-    print "\n\n"
+                                    sys.argv[1:]))))
+    print("TreeFix command:")
+    print(cmd)
+    print("\n\n")
     
     # delegate
     return subprocess.call(cmdargs)
