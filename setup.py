@@ -40,14 +40,14 @@ raxml_module = Extension('treefix_raxml._raxml',
                          )
                          
 setup(
-    name='treefixVP',
+    name='treefixTP',
     version=VERSION,
-    description='TreeFix-VP',
+    description='TreeFix-TP',
     long_description = """
             """,
     author='Mukul Bansal, Samuel Sledzieski, Yi-Chieh Wu',
     author_email='samuel.sledzieski@uconn.edu',
-    url='https://www.github.com/samsledje/treefixVP',
+    url='https://www.github.com/samsledje/TreeFix-TP',
 
     classifiers=[
           'Development Status :: 5 - Production/Stable',
@@ -71,7 +71,8 @@ setup(
 	      'treefix_raxml.deps.rasmus',
 	      'treefix_raxml.deps.compbio'],
     py_modules=[],
-    scripts=['bin/treefix_for_VP', 'bin/treefixVP', 'bin/fitch.linux', 'bin/log_parser'],
+    scripts=['bin/treefix_for_TP', 'bin/treefixTP', 'bin/log_parser'],
+    data_files=[('bin', ['bin/fitch.linux'])],
     ext_modules=[raxml_module]
     )
 

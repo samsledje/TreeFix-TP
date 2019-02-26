@@ -2,7 +2,7 @@
 # Python module for TreeFix library
 #
 
-PROGRAM_NAME = u"TreeFix-VP"
+PROGRAM_NAME = u"TreeFix-TP"
 PROGRAM_VERSION_MAJOR = 1
 PROGRAM_VERSION_MINOR = 0
 PROGRAM_VERSION_RELEASE = 0

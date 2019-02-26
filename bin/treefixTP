@@ -8,12 +8,12 @@ import commands, subprocess
 
 # treefix libraries
 from treefix import common
-from treefix import treefixVP
+from treefix import treefixTP
 
 #==========================================================
 # parser
 
-VERSION = treefixVP.PROGRAM_VERSION_TEXT
+VERSION = treefixTP.PROGRAM_VERSION_TEXT
 #commands.getoutput("treefix --version").rsplit()[-1]
 
 def parse_args():
@@ -25,9 +25,9 @@ def parse_args():
         version = "%prog " + VERSION,
 
         description =
-             "TreeFix-VP is a phylogenetic program for improving viral phylogenetic tree reconstructions using " +
+             "TreeFix-TP is a phylogenetic program for improving viral phylogenetic tree reconstructions using " +
              "a test statistic for likelihood equivalence and a transmission aware cost function. " +
-             "See http://compbio.mit.edu/treefix-dtl for details.",
+             "See http://github.com/samsledje/TreeFix-TP for details.",
              
         epilog =
              "Written by Mukul Bansal (mukul.bansal@uconn.edu) and Samuel Sledzieski (samuel.sledzieski@uconn.edu), University of Connecticut. "+
@@ -134,7 +134,7 @@ def main():
     options, args = parse_args()
 
     # create command to treefix
-    cmdargs = ["treefix_for_VP"]
+    cmdargs = ["treefix_for_TP"]
     for opt, val in options.__dict__.iteritems():
         if val is not None:
             cmdargs.extend(["--%s" % opt, str(val)])
@@ -143,8 +143,8 @@ def main():
     cmd = ' '.join(map(lambda x: x if x.find(' ') == -1 else "\"%s\"" % x, cmdargs))
 
     #log
-    print("TreeFix-VP version: %s\n" % VERSION)
-    print "TreeFix-VP executed with the following arguments:"
+    print("TreeFix-TP version: %s\n" % VERSION)
+    print "TreeFix-TP executed with the following arguments:"
     print "%s %s\n" % (os.path.basename(sys.argv[0]), 
                        ' '.join(map(lambda x: x if x.find(' ') == -1 else "\"%s\"" % x, 
                                     sys.argv[1:])))
