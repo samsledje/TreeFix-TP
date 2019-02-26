@@ -1,5 +1,8 @@
-TreeFix-VP Change Log
+TreeFix-TP Change Log
 -----------------------
+
+treefixTP-1.1.0 (2019/2/26)
+    - name change from VP (viral phylogeny) to TP (transmission phylogeny)
 
 treefixVP-1.0.0 (2018/2/14)
 -----------------------

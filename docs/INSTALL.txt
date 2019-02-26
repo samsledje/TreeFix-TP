@@ -1,17 +1,21 @@
-TreeFixVP
+TreeFixTP
 Mukul Bansal, Samuel Sledzieski
 
 Uses source material from:
   TreeFix-DTL
-  http://compbio.mit.edu/treefix-dtl/
+  https://compbio.mit.edu/treefix-dtl/
   Yi-Chieh Wu,
   with libraries contributed by Matthew Rasmussen
   and executables contributed by Mukul Bansal
 
+  newick-tools
+  https://github.com/xflouris/newick-tools
+  Paschalia Kapli, Sarah Lutteropp, Tomas Flouri
+  Used under GNU Affero General Public License 3
 =============================================================================
 DEPENDENCIES
 
-TreeFix-VP has the following requirements:
+TreeFix-TP has the following requirements:
 
 - Python (2.5.4) -- http://python.org/
 - GCC compiler (4.1.2) -- http://gcc.gnu.org/
