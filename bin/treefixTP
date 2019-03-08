@@ -95,8 +95,8 @@ def parse_args():
                           help="seed value for random generator")
     grp_search.add_option("--niter", dest="niter",
                           metavar="<# iterations>",
-                          default=1000, type="int",
-                          help="number of iterations (default: 1000)")
+                          default=5000, type="int",
+                          help="number of iterations (default: 5000)")
     grp_search.add_option("--nquickiter", dest="nquickiter",
                           metavar="<# quick iterations>",
                           default=100, type="int",
