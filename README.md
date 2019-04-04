@@ -14,7 +14,7 @@ The input for TreeFix-TP is a multiple sequence alignment in .fasta format, and 
 
 * Installation instructions for TreeFix-TP can be found [here](https://github.com/samsledje/TreeFix-TP/blob/master/docs/INSTALL.txt).
 
-* The manual can be found [here](https://github.com/samsledje/TreeFix-TP/blob/master/docs/TreeFix-VP-Manual.pdf), which includes information on requirements which must be installed.
+* The manual can be found [here](https://github.com/samsledje/TreeFix-TP/blob/master/docs/TreeFix-TP-Manual.pdf), which includes information on requirements which must be installed.
 
 * A test script which runs TreeFix-TP on example data can be found [here](https://github.com/samsledje/TreeFix-TP/tree/master/examples).
 
