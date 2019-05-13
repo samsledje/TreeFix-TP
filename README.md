@@ -16,6 +16,8 @@ The input for TreeFix-TP is a multiple sequence alignment in .fasta format, and 
 
 * The manual can be found [here](https://github.com/samsledje/TreeFix-TP/blob/master/docs/TreeFix-TP-Manual.pdf), which includes information on requirements which must be installed.
 
+* Use lib/seq_utils to format your sequence files in .fasta format for use with TreeFix-TP.
+
 * A test script which runs TreeFix-TP on example data can be found [here](https://github.com/samsledje/TreeFix-TP/tree/master/examples).
 
 * We recommend using a maximum likelihood tree generated using [RAxML](https://sco.h-its.org/exelixis/web/software/raxml/index.html).
