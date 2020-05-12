@@ -73,8 +73,8 @@ treefixVP \
     -A .fasta \
     -o .raxml \
     -n .treefix\
-    -V1 -l test_VP.log \
-    test_VP.raxml
+    -V1 -l test_TP.log \
+    test_TP.raxml
 
 prefix=Score:
 echo The transmission cost for the RAxML tree is
