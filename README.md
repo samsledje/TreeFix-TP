@@ -16,6 +16,8 @@ The input for TreeFix-TP is a multiple sequence alignment in .fasta format, and 
 
 * The manual can be found [here](https://github.com/samsledje/TreeFix-TP/blob/master/docs/TreeFix-TP-Manual.pdf), which includes information on requirements which must be installed.
 
+* TreeFix-TP is described in *TreeFix-TP: Phylogenetic Error-Correction for Infectious Disease Transmission Network Inference* Samuel Sledzieski, Chengchen Zhang, Ion Mandoiu, and Mukul S. Bansal. Pacific Symposium on Biocomputing (PSB) 2021: to appear. [[bioRxiv](https://www.biorxiv.org/content/10.1101/813931v1)]
+
 * Use lib/seq_utils to format your sequence files in .fasta format for use with TreeFix-TP.
 
 * A test script which runs TreeFix-TP on example data can be found [here](https://github.com/samsledje/TreeFix-TP/tree/master/examples).
