@@ -11,6 +11,7 @@ from treefix_tp.rasmus import treelib, util
 # compbio libraries
 from treefix_tp.compbio import phylo
 
+
 class Model(object):
     def __init__(self, extra):
         self.VERSION = "-"
@@ -30,7 +31,7 @@ class Model(object):
                 raise Exception("--extra parameters not allowed if no parser defined")
         else:
             options, args = self.parser.parse_args(extra.split() if extra is not None else [])
-            for k, v in vars(options).iteritems():
+            for k, v in vars(options).items():
                 setattr(self, k, v)
 
 
@@ -84,20 +85,25 @@ class CostModel(Model):
 
         oldroot = gtree.root.name
         treelib.unroot(gtree, newCopy=False)
-        treelib.reroot(gtree,
-                       gtree.nodes[sorted(gtree.leaf_names())[0]].parent.name,
-                       onBranch=False, newCopy=False)
+        treelib.reroot(
+            gtree,
+            gtree.nodes[sorted(gtree.leaf_names())[0]].parent.name,
+            onBranch=False,
+            newCopy=False,
+        )
 
         # make rerooting order consistent using hash ordering
         phylo.hash_order_tree(gtree, self.gene2species)
 
         # get list of edges to root on
         edges = []
+
         def walk(node):
             edges.append((node, node.parent))
             if not node.is_leaf():
                 node.recurse(walk)
                 edges.append((node, node.parent))
+
         for child in gtree.root.children:
             walk(child)
 

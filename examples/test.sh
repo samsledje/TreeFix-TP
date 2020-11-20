@@ -10,7 +10,7 @@
 # Compute the corrected phylogeny using RAxML SH statistics and fitch.linux cost model
 
 # show help information
-echo TreeFix-VP help: 
+echo TreeFix-VP help:
 sleep 2
 treefixVP -h
 
@@ -67,7 +67,7 @@ sleep 2
 echo RAxML was used to reconstruct a maximum likelihood tree from the multiple sequence alignment
 sleep 2
 echo The MSA and ML tree are used as the inputs of TreeFix-VP to generate the corrected viral phylogeny
-sleep 2 
+sleep 2
 
 treefixVP \
     -A .fasta \

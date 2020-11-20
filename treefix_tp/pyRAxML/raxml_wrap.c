@@ -3022,8 +3022,8 @@ static swig_module_info swig_module = {swig_types, 6, 0, 0, 0, 0};
 
 
 #define SWIG_FILE_WITH_INIT
-#include "../../src/raxml/axml.h"
-#include "../../src/raxml/globalVariables.h"
+#include "src/axml.h"
+#include "src/globalVariables.h"
 
 
 /* struct helper functions */
@@ -3452,6 +3452,8 @@ SWIGINTERN PyObject *_wrap_read_tree(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   FILE *arg1 = (FILE *) 0 ;
   tree *arg2 = (tree *) 0 ;
   analdef *arg3 = (analdef *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   void *argp3 = 0 ;
@@ -3461,13 +3463,11 @@ SWIGINTERN PyObject *_wrap_read_tree(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:read_tree",&obj0,&obj1,&obj2)) SWIG_fail;
-  {
-    if (!PyFile_Check(obj0)) {
-      PyErr_SetString(PyExc_TypeError, "fp must be a file type.");
-      return NULL;
-    }
-    arg1 = PyFile_AsFile(obj0);
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_FILE, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "read_tree" "', argument " "1"" of type '" "FILE *""'"); 
   }
+  arg1 = (FILE *)(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_tree, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "read_tree" "', argument " "2"" of type '" "tree *""'"); 

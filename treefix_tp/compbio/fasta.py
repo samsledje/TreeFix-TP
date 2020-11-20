@@ -7,6 +7,7 @@
 # python imports
 import sys
 import os
+
 izip = zip
 
 # rasmus imports
@@ -17,34 +18,38 @@ from treefix_tp.compbio import seqlib
 from treefix_tp.compbio.seqlib import SeqDict
 
 
-
 def removestar(value):
     return value.replace("*", "")
+
 
 def firstword(key):
     """Use the first word as the key"""
     return key.split()[0]
 
 
-class FastaDict (SeqDict):
+class FastaDict(SeqDict):
     """Store a FASTA file as a dictionary-like object
 
-       FastaDict works exactly like a python dict except keys are guaranteed to
-       in the same order as they appear in the file.
+    FastaDict works exactly like a python dict except keys are guaranteed to
+    in the same order as they appear in the file.
     """
 
-
-    def __init__(self, *args, ** keywords):
+    def __init__(self, *args, **keywords):
         SeqDict.__init__(self)
 
         self.index = FastaIndex()
 
         if len(args) > 0:
-            self.read(* args, **keywords)
+            self.read(*args, **keywords)
 
-
-    def read(self, filename, keyfunc=firstword, valuefunc = lambda x: x,
-             errors=True, useIndex=False):
+    def read(
+        self,
+        filename,
+        keyfunc=firstword,
+        valuefunc=lambda x: x,
+        errors=True,
+        useIndex=False,
+    ):
         """Read sequences from a Fasta file"""
 
         if isinstance(filename, str) and useIndex and has_fasta_index(filename):
@@ -59,7 +64,6 @@ class FastaDict (SeqDict):
             for key, seq in iter_fasta(filename, keyfunc, valuefunc):
                 self.add(key, seq, errors)
 
-
     def write(self, filename=sys.stdout, names=None, width=80):
         """Write sequences in Fasta format"""
 
@@ -69,9 +73,8 @@ class FastaDict (SeqDict):
             names = self.names
 
         for key in names:
-            print >>out, ">" + key
+            print >> out, ">" + key
             util.printwrap(self[key], width, out=out)
-
 
     def __getitem__(self, key):
         """Get a sequence by key"""
@@ -88,7 +91,6 @@ class FastaDict (SeqDict):
         else:
             return val
 
-
     def getseq(self, key, start=1, end=None, strand=1):
         """Get a sequence (or subsequence) by key"""
 
@@ -101,7 +103,7 @@ class FastaDict (SeqDict):
         else:
             start = util.clamp(start, 1, None)
             end = util.clamp(end, 1, None)
-            val = val[start-1:end]
+            val = val[start - 1 : end]
 
             # reverse complement if needed
             if strand == -1:
@@ -110,13 +112,12 @@ class FastaDict (SeqDict):
             return val
 
 
-#=============================================================================
+# =============================================================================
 # Convenience functions for input/output
 #
 
 
-def read_fasta(filename, keyfunc=firstword, valuefunc=lambda x: x,
-              errors=True, useIndex=True):
+def read_fasta(filename, keyfunc=firstword, valuefunc=lambda x: x, errors=True, useIndex=True):
     """Read a FASTA file into a sequence dictionary"""
 
     fa = FastaDict()
@@ -137,11 +138,11 @@ def write_fasta_ordered(filename, names, seqs, width=None):
     out = util.open_stream(filename, "w")
 
     for name, seq in izip(names, seqs):
-        print >>out, ">%s" % name
+        print >> out, ">%s" % name
         util.printwrap(seq, width, out=out)
 
 
-def iter_fasta(filename, keyfunc=firstword, valuefunc = lambda x: x):
+def iter_fasta(filename, keyfunc=firstword, valuefunc=lambda x: x):
     """Iterate through the sequences of a FASTA file"""
     key = ""
     value = ""
@@ -159,26 +160,53 @@ def iter_fasta(filename, keyfunc=firstword, valuefunc = lambda x: x):
 
 
 # DNA complements
-_comp = {"A":"T", "C":"G", "G":"C", "T":"A", "N":"N",
-         "a":"t", "c":"g", "g":"c", "t":"a", "n":"n",
-         "R":"Y", "Y":"R", "S":"W", "W":"S", "K":"M", "M":"K",
-         "r":"y", "y":"r", "s":"w", "w":"s", "k":"m", "m":"k",
-         "B":"V", "V":"B", "D":"H", "H":"D",
-         "b":"v", "v":"b", "d":"h", "h":"d"}
+_comp = {
+    "A": "T",
+    "C": "G",
+    "G": "C",
+    "T": "A",
+    "N": "N",
+    "a": "t",
+    "c": "g",
+    "g": "c",
+    "t": "a",
+    "n": "n",
+    "R": "Y",
+    "Y": "R",
+    "S": "W",
+    "W": "S",
+    "K": "M",
+    "M": "K",
+    "r": "y",
+    "y": "r",
+    "s": "w",
+    "w": "s",
+    "k": "m",
+    "m": "k",
+    "B": "V",
+    "V": "B",
+    "D": "H",
+    "H": "D",
+    "b": "v",
+    "v": "b",
+    "d": "h",
+    "h": "d",
+}
+
 
 def _revcomp(seq):
     """Reverse complement a sequence"""
 
     seq2 = []
-    for i in xrange(len(seq)-1, -1, -1):
+    for i in xrange(len(seq) - 1, -1, -1):
         seq2.append(_comp[seq[i]])
     return "".join(seq2)
 
 
-
-#=============================================================================
+# =============================================================================
 # Rasmus FASTA Indexing
 #
+
 
 def make_fasta_index(filename):
     """I also have a faster C program called formatfa"""
@@ -210,7 +238,7 @@ def guess_fasta_width(fastaFile):
     maxwidth = 0
 
     for line in fafile:
-        if len(line) != 0  and line[0] != ">":
+        if len(line) != 0 and line[0] != ">":
             lineno += 1
             width3 = len(line.rstrip())
             maxwidth = max(maxwidth, width3)
@@ -244,7 +272,6 @@ def guess_fasta_width(fastaFile):
     return maxwidth
 
 
-
 class FastaIndex:
     def __init__(self, *filenames):
         self.filelookup = {}
@@ -252,7 +279,6 @@ class FastaIndex:
 
         for fn in filenames:
             self.read(fn)
-
 
     def read(self, filename):
         # open fasta
@@ -273,10 +299,9 @@ class FastaIndex:
         # return keys read
         return keys
 
-
     def get(self, key, start=1, end=None, strand=1):
         """Get a sequence by key
-           coordinates are 1-based and end is inclusive"""
+        coordinates are 1-based and end is inclusive"""
 
         assert start > 0, Exception("must specify coordinates one-based")
         assert key in self.index, Exception("key '%s' not in index" % key)
@@ -313,7 +338,7 @@ class FastaIndex:
             seq.append(line.rstrip())
             len2 += len(seq[-1])
             if len2 > lenNeeded:
-                seq[-1] = seq[-1][:-int(len2 - lenNeeded)]
+                seq[-1] = seq[-1][: -int(len2 - lenNeeded)]
                 break
         seq = "".join(seq)
 
@@ -324,19 +349,15 @@ class FastaIndex:
         return seq
 
 
-
-
-
-
-#=============================================================================
+# =============================================================================
 # FASTA BLAST Indexing
 #
+
 
 def fasta_get(fasta_file, key, start=0, end=0, strand=1):
     """Get a sequence from a fasta file that has been indexed by 'formatdb'"""
 
-    stream = os.popen("fastacmd -d %s -s %s -L %d,%d 2>/dev/null" %
-                      (fasta_file, key, start, end))
+    stream = os.popen("fastacmd -d %s -s %s -L %d,%d 2>/dev/null" % (fasta_file, key, start, end))
 
     # remove key
     val = stream.read()
@@ -355,7 +376,4 @@ def fasta_get(fasta_file, key, start=0, end=0, strand=1):
 def has_blast_index(fasta_file):
     """Check to see if fasta_file has a formatdb fasta index"""
 
-    return os.path.exists(fasta_file + ".psd") and \
-           os.path.exists(fasta_file + ".psi")
-
-
+    return os.path.exists(fasta_file + ".psd") and os.path.exists(fasta_file + ".psi")

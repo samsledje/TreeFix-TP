@@ -1,3 +1,5 @@
+%module tmaps
+
 // Typemaps that are independent of scripting language
 
 // cleans up the char ** array after the function call
@@ -62,15 +64,6 @@
         PyErr_SetString(PyExc_TypeError,"not a list");
         return NULL;
     }
-}
-
-// convert between python and C file handle
-%typemap(in) FILE * {
-    if (!PyFile_Check($input)) {
-        PyErr_SetString(PyExc_TypeError, "$1_name must be a file type.");
-        return NULL;
-    }
-    $1 = PyFile_AsFile($input);
 }
 
 #endif

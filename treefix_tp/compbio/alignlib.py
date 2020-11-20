@@ -16,18 +16,17 @@ from treefix_tp.compbio import fasta, seqlib
 from treefix_tp.compbio.seqlib import *
 
 
-
-#=============================================================================
+# =============================================================================
 # Alignment functions
 
 
 def new_align(aln=None):
     """Makes a new alignment object based on the given object
 
-       given      return
-       -----      ------
-       dict       FastaDict
-       other      other
+    given      return
+    -----      ------
+    dict       FastaDict
+    other      other
     """
 
     if aln is None:
@@ -73,12 +72,14 @@ def remove_empty_columns(aln, enforce_codon=False):
                     break
     else:
         if alnlen % 3 != 0:
-            raise Exception("cannot set enforce_codon if alignment length is not a multiple of three")
+            raise Exception(
+                "cannot set enforce_codon if alignment length is not a multiple of three"
+            )
 
         for i in range(0, alnlen, 3):
             for seq in seqs:
-                if seq[i:i+3] != "---":
-                    ind.extend([i,i+1,i+2])
+                if seq[i : i + 3] != "---":
+                    ind.extend([i, i + 1, i + 2])
                     break
 
     return subalign(aln, ind)
@@ -87,9 +88,9 @@ def remove_empty_columns(aln, enforce_codon=False):
 def remove_gapped_columns(aln):
     """Removes any column form an alignment 'aln' that contains a gap
 
-       A new alignment is returned
+    A new alignment is returned
     """
-    cols = zip(* aln.values())
+    cols = zip(*aln.values())
     ind = util.find(lambda col: "-" not in col, cols)
     return subalign(aln, ind)
 
@@ -100,8 +101,7 @@ def require_nseqs(aln, n):
     """
 
     seqs = aln.values()
-    ind = [i for i in range(aln.alignlen())
-           if sum(1 for seq in seqs if seq[i] != "-") >= n]
+    ind = [i for i in range(aln.alignlen()) if sum(1 for seq in seqs if seq[i] != "-") >= n]
     return subalign(aln, ind)
 
 
@@ -128,7 +128,7 @@ def calc_conservation_string(aln):
     for pid in percids:
         if pid == 1:
             identity += "*"
-        elif pid > .5:
+        elif pid > 0.5:
             identity += "."
         else:
             identity += " "
@@ -147,7 +147,8 @@ def calc_conservation(aln):
     identity = ""
     for i in xrange(length):
         chars = util.hist_dict(util.cget(seqs, i))
-        if "-" in chars: del chars["-"]
+        if "-" in chars:
+            del chars["-"]
 
         if len(chars) == 0:
             percids.append(0.0)
@@ -157,9 +158,7 @@ def calc_conservation(aln):
     return percids
 
 
-
-def print_align(aln, seqwidth = 59, spacing=2, extra=fasta.FastaDict(),
-               out=sys.stdout, order=None):
+def print_align(aln, seqwidth=59, spacing=2, extra=fasta.FastaDict(), out=sys.stdout, order=None):
     """Pretty print an alignment"""
 
     if order == None:
@@ -178,23 +177,27 @@ def print_align(aln, seqwidth = 59, spacing=2, extra=fasta.FastaDict(),
     for i in xrange(0, len(aln.values()[0]), seqwidth):
         # print sequences
         for name in order:
-            print >>out, "%s %s" % (mkname(name, namewidth),
-                                    aln[name][i:i+seqwidth])
+            print >> out, "%s %s" % (
+                mkname(name, namewidth),
+                aln[name][i : i + seqwidth],
+            )
 
         # print extra
         for name in extra.keys():
-            print >>out, "%s %s" % (mkname(name, namewidth),
-                                    extra[name][i:i+seqwidth])
+            print >> out, "%s %s" % (
+                mkname(name, namewidth),
+                extra[name][i : i + seqwidth],
+            )
 
         # print identity
-        print >>out, (" "*namewidth) + " " + identity[i:i+seqwidth]
-        print >>out
+        print >> out, (" " * namewidth) + " " + identity[i : i + seqwidth]
+        print >> out
 
 
 def revtranslate_align(aaseqs, dnaseqs, check=False, trim=False):
     """Reverse translates aminoacid alignment into DNA alignment
 
-       Must supply original ungapped DNA.
+    Must supply original ungapped DNA.
     """
 
     align = new_align(aaseqs)
@@ -208,39 +211,36 @@ def revtranslate_align(aaseqs, dnaseqs, check=False, trim=False):
             if len(dna) != aalen * 3:
                 if trim:
                     # make dna a multiple of three
-                    dna = dna[:(len(dna) // 3) * 3]
+                    dna = dna[: (len(dna) // 3) * 3]
 
                     if len(dna) > aalen * 3:
                         # trim dna
-                        dna = dna[:aalen*3]
+                        dna = dna[: aalen * 3]
                     else:
                         # trim peptide to match nucleotide
                         j = 0
                         for i in xrange(len(seq)):
-                            if seq[i] != '-':
+                            if seq[i] != "-":
                                 j += 1
                                 if j > len(dna) // 3:
                                     seq = seq[:i] + "-" * (len(seq) - i)
                                     break
 
                     aalen2 = sum(int(a != "-") for a in seq)
-                    assert len(dna) == aalen2 * 3,  (
-                        len(dna), aalen2 * 3)
+                    assert len(dna) == aalen2 * 3, (len(dna), aalen2 * 3)
 
-                    util.logger("trim dna (%d) and pep (%d)" %
-                                (dnalen - len(dna), aalen - aalen2))
+                    util.logger("trim dna (%d) and pep (%d)" % (dnalen - len(dna), aalen - aalen2))
 
                 else:
                     # is last residue X?
-                    for i in xrange(len(seq)-1, -1, -1):
+                    for i in xrange(len(seq) - 1, -1, -1):
                         if seq[i] == "-":
                             continue
                         if seq[i] == "X":
                             # repair
-                            seq =  seq[:i] + "-" * (len(seq)-i)
-                            dna = dna[:-3] #-(len(dna) % 3)]
+                            seq = seq[:i] + "-" * (len(seq) - i)
+                            dna = dna[:-3]  # -(len(dna) % 3)]
                         break
-
 
             align[name] = revtranslate(seq, dna, check=check)
         except TranslateError as e:
@@ -249,9 +249,7 @@ def revtranslate_align(aaseqs, dnaseqs, check=False, trim=False):
     return align
 
 
-
-
-#=============================================================================
+# =============================================================================
 # four fold degeneracy
 
 
@@ -283,17 +281,15 @@ def make_codon_pos_align(aln):
     """Get the codon position of every base in an alignment"""
 
     def func(seq):
-        dct = {-1: "-",
-               0: "0",
-               1: "1",
-               2: "2"}
+        dct = {-1: "-", 0: "0", 1: "1", 2: "2"}
         return "".join(util.mget(dct, mark_codon_pos(seq)))
+
     return mapalign(aln, valfunc=func)
 
 
 def find_aligned_codons(aln):
     """Returns the columns indices of the alignment that represent aligned
-       codons.
+    codons.
     """
 
     ind = range(aln.alignlen())
@@ -304,16 +300,15 @@ def find_aligned_codons(aln):
         bad = False
 
         for key, val in aln.iteritems():
-            codon = val[i:i+3]
+            codon = val[i : i + 3]
             if "-" in codon and codon != "---":
                 bad = True
                 break
 
         if not bad:
-            ind2.extend([i, i+1, i+2])
+            ind2.extend([i, i + 1, i + 2])
 
     return ind2
-
 
 
 def filter_aligned_codons(aln):
@@ -325,9 +320,9 @@ def filter_aligned_codons(aln):
 
 def find_four_fold(aln):
     """Returns index of all columns in alignment that are completely
-       fourfold degenerate
+    fourfold degenerate
 
-       Assumes that columns are already filtered for aligned codons
+    Assumes that columns are already filtered for aligned codons
     """
 
     # create peptide alignment
@@ -356,29 +351,28 @@ def find_four_fold(aln):
             pepcons.append(False)
             pep.append("X")
 
-
     # find four-fold sites in conserved peptides
     ind = []
 
     for i in range(0, len(aln.values()[0]), 3):
         # process only those columns that are conserved at the peptide level
-        if pepcons[i//3]:
-            degen = AA_DEGEN[pep[i//3]]
+        if pepcons[i // 3]:
+            degen = AA_DEGEN[pep[i // 3]]
             for j in range(3):
                 if degen[j] == 4:
-                    ind.append(i+j)
+                    ind.append(i + j)
     return ind
 
 
 def filter_four_fold(aln):
     """returns an alignment of only four-fold degenerate sites from an
-       alignment of coding sequences
+    alignment of coding sequences
 
-       This function performs the following steps:
+    This function performs the following steps:
 
-       1. remove all codon columns that don't have 0 or 3 gaps
-       2. keep all codon columns that code for identical AA
-       3. if the codon column codes for a 4D AA, then keep its 3rd position
+    1. remove all codon columns that don't have 0 or 3 gaps
+    2. keep all codon columns that code for identical AA
+    3. if the codon column codes for a 4D AA, then keep its 3rd position
     """
 
     aln_codons = filter_align_codons(aln)
@@ -392,8 +386,8 @@ def calc_four_fold_dist_matrix(aln):
     mat = []
     # calc upper triangular
     for i in range(len(names)):
-        mat.append([0.0] * (i+1))
-        for j in range(i+1, len(names)):
+        mat.append([0.0] * (i + 1))
+        for j in range(i + 1, len(names)):
             ind = find_four_fold(aln.get([names[i], names[j]]))
 
             mismatches = 0
@@ -427,28 +421,23 @@ def find_degen(aln):
     degens = [-1] * aln.alignlen()
 
     for i in range(0, len(codon_ind), 3):
-        if pep[i/3] == "X":
+        if pep[i / 3] == "X":
             continue
-        degen = AA_DEGEN[pep[i/3]]
-        if identies[i/3] == 1.0:
+        degen = AA_DEGEN[pep[i / 3]]
+        if identies[i / 3] == 1.0:
             for j in range(3):
-                degens[codon_ind[i+j]] = degen[j]
+                degens[codon_ind[i + j]] = degen[j]
 
     return degens
 
 
 def make_degen_str(aln):
     """Returns a string containing the degeneracy for each column
-       in an alignment
+    in an alignment
     """
 
     degens = find_degen(aln)
-    degenmap = {-1: " ",
-                 0: "0",
-                 1: "1",
-                 2: "2",
-                 3: "3",
-                 4: "4"}
+    degenmap = {-1: " ", 0: "0", 1: "1", 2: "2", 3: "3", 4: "4"}
 
     return "".join(util.mget(degenmap, degens))
 
@@ -462,13 +451,13 @@ def print_degen(aln, **args):
     print_align(aln, extra=extra, **args)
 
 
-#=============================================================================
+# =============================================================================
 # background frequency
 #
 def compute_bgfreq(aln):
     # initialize with pseudo counts
-    dna2int = {'A': 0, "C": 1, "G": 2, "T": 3}
-    bgfreq = [1,1,1,1]
+    dna2int = {"A": 0, "C": 1, "G": 2, "T": 3}
+    bgfreq = [1, 1, 1, 1]
     count = 4
 
     # count
@@ -479,14 +468,15 @@ def compute_bgfreq(aln):
                 bgfreq[dna2int[c]] += 1
 
     # normalize
-    bgfreq = [float(freq)/count for freq in bgfreq]
+    bgfreq = [float(freq) / count for freq in bgfreq]
 
     return bgfreq
+
 
 # Position Specific Scoring Matrix (PSSM)
 
 
-def align2pssm(aln, pseudocounts = {}):
+def align2pssm(aln, pseudocounts={}):
     pssm = []
     denom = float(len(aln)) + sum(pseudocounts.values())
 
@@ -511,8 +501,7 @@ def pssmSeq(pssm, seq):
     return score
 
 
-
-#=============================================================================
+# =============================================================================
 # Coordinate conversions
 #
 # Coordinate systems
@@ -534,55 +523,45 @@ def pssmSeq(pssm, seq):
 #
 
 
-class CoordConverter (object):
+class CoordConverter(object):
     """Converts between coordinate systems on a gapped sequence"""
 
     def __init__(self, seq):
         self.local2alignLookup = local2align(seq)
         self.align2localLookup = align2local(seq)
 
-
     def local2align(self, i, clamp=False):
         if clamp:
-            return self.local2alignLookup[int(util.clamp(i, 0,
-                                           len(self.local2alignLookup)-1))]
+            return self.local2alignLookup[int(util.clamp(i, 0, len(self.local2alignLookup) - 1))]
         else:
             return self.local2alignLookup[i]
 
-
     def align2local(self, i, clamp=False):
         if clamp:
-            return self.align2localLookup[int(util.clamp(i, 0,
-                                           len(self.align2localLookup)-1))]
+            return self.align2localLookup[int(util.clamp(i, 0, len(self.align2localLookup) - 1))]
         else:
             return self.align2localLookup[i]
-
 
     def global2local(self, gobal_coord, start, end, strand):
         """Returns local coordinate in a global region"""
         return global2local(gobal_coord, start, end, strand)
 
-
     def local2global(self, local_coord, start, end, strand):
         """Return global coordinate within a region from a local coordinate"""
         local2global(local_coord, start, end, strand)
-
 
     def global2align(self, global_coord, start, end, strand):
         local_coord = global2local(global_coord, start, end, strand)
 
         # throw exception for out of bounds
-        if local_coord < 0 or \
-           local_coord >= len(alignLookup):
+        if local_coord < 0 or local_coord >= len(alignLookup):
             raise Exception("coordinate outside [start, end]")
 
         return self.local2alignLookup[local_coord]
 
-
     def align2global(self, align_coord, start, end, strand):
         local_coord = self.align2localLookup[align_coord]
         return local2global(local_coord, start, end, strand)
-
 
 
 def local2align(seq):
@@ -596,7 +575,8 @@ def local2align(seq):
 
     lookup = []
     for i in xrange(len(seq)):
-        if seq[i] == "-": continue
+        if seq[i] == "-":
+            continue
         lookup.append(i)
     return lookup
 
@@ -617,7 +597,6 @@ def align2local(seq):
             i += 1
         lookup.append(i)
     return lookup
-
 
 
 def global2local(gobal_coord, start, end, strand):
@@ -644,8 +623,7 @@ def global2align(global_coord, start, end, strand, alignLookup):
     local_coord = global2local(global_coord, start, end, strand)
 
     # throw exception for out of bounds
-    if local_coord < 0 or \
-       local_coord >= len(alignLookup):
+    if local_coord < 0 or local_coord >= len(alignLookup):
         raise Exception("coordinate outside [start, end]")
 
     return alignLookup[local_coord]
@@ -656,9 +634,7 @@ def align2global(align_coord, start, end, strand, localLookup):
     return local2global(local_coord, start, end, strand)
 
 
-
-
-#=============================================================================
+# =============================================================================
 # old code
 
 '''

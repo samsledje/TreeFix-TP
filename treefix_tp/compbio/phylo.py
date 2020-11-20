@@ -20,25 +20,27 @@ from treefix_tp.rasmus import util
 from . import fasta
 
 
-#=============================================================================
+# =============================================================================
 # Counting functions
+
 
 def num_rooted_trees(nleaves):
     # (2n-3)!! = (2n-3)!/[2^(n-2)*(n-2)!] for n >= 2
     assert nleaves >= 1
     if nleaves < 2:
         return 1
-    return stats.factorial(2*nleaves-3)/(2**(nleaves-2) * stats.factorial(nleaves-2))
+    return stats.factorial(2 * nleaves - 3) / (2 ** (nleaves - 2) * stats.factorial(nleaves - 2))
+
 
 def num_unrooted_trees(nleaves):
     # (2n-5)!! = (2n-5)!/[2^(n-3)*(n-3)!] for n >= 3
     assert nleaves >= 1
     if nleaves < 3:
         return 1
-    return stats.factorial(2*nleaves-5)/(2**(nleaves-3) * stats.factorial(nleaves-3))
+    return stats.factorial(2 * nleaves - 5) / (2 ** (nleaves - 3) * stats.factorial(nleaves - 3))
 
 
-#=============================================================================
+# =============================================================================
 # Gene to species mapping functions
 
 
@@ -77,10 +79,11 @@ def make_gene2species(maps):
             return exacts[gene]
 
         raise Exception("Cannot map gene '%s' to any species" % gene)
+
     return gene2species
 
 
-def read_gene2species(* filenames):
+def read_gene2species(*filenames):
     """
     Reads a gene2species file
 
@@ -90,12 +93,11 @@ def read_gene2species(* filenames):
     for filename in filenames:
         maps = []
         for filename in filenames:
-            maps.extend(util.read_delim(util.skip_comments(
-                util.open_stream(filename))))
+            maps.extend(util.read_delim(util.skip_comments(util.open_stream(filename))))
     return make_gene2species(maps)
 
 
-#=============================================================================
+# =============================================================================
 # Reconciliation functions
 #
 
@@ -109,11 +111,12 @@ def reconcile(gtree, stree, gene2species=gene2species):
 
     # determine the preorder traversal of the stree
     order = {}
+
     def walk(node):
         order[node] = len(order)
         node.recurse(walk)
-    walk(stree.root)
 
+    walk(stree.root)
 
     # label gene leaves with their species
     for node in gtree.leaves():
@@ -125,8 +128,8 @@ def reconcile(gtree, stree, gene2species=gene2species):
 
         if not node.is_leaf():
             # this node's species is lca of children species
-            recon[node] = reconcile_lca(stree, order,
-                                       util.mget(recon, node.children))
+            recon[node] = reconcile_lca(stree, order, util.mget(recon, node.children))
+
     walk(gtree.root)
 
     return recon
@@ -186,12 +189,13 @@ def assert_recon(tree, stree, recon):
 
 def label_events(gtree, recon):
     """Returns a dict with gene node keys and values indicating
-       'gene', 'spec', or 'dup'"""
+    'gene', 'spec', or 'dup'"""
     events = {}
 
     def walk(node):
         events[node] = label_events_node(node, recon)
         node.recurse(walk)
+
     walk(gtree.root)
 
     return events
@@ -277,16 +281,17 @@ def find_loss(gtree, stree, recon, node=None):
         loss.extend(find_loss_node(node, recon))
 
         # add losses (for non-MPR)
-        #snode = recon[node]
-        #child_snodes = set()
-        #for child in node.children:
+        # snode = recon[node]
+        # child_snodes = set()
+        # for child in node.children:
         #    child_snodes.update([recon[child]] + recon[child].descendants())
         #
-        #for child_snode in snode.children:
+        # for child_snode in snode.children:
         #    if child_snode not in child_snodes:
         #        loss.append([node, child_snode])
 
         node.recurse(walk)
+
     if node:
         walk(node)
     else:
@@ -307,6 +312,7 @@ def count_dup(gtree, events, node=None):
         if events[node] == "dup":
             var["dups"] += len(node.children) - 1
         node.recurse(walk)
+
     if node:
         walk(node)
     else:
@@ -332,9 +338,10 @@ def count_dup_loss(gtree, stree, recon, events=None):
 
 def find_species_roots(tree, stree, recon):
     """Find speciation nodes in the gene tree that reconcile to the
-       species tree root"""
+    species tree root"""
 
     roots = []
+
     def walk(node):
         found = False
         for child in node.children:
@@ -343,6 +350,7 @@ def find_species_roots(tree, stree, recon):
             roots.append(node)
             found = True
         return found
+
     walk(tree.root)
     return roots
 
@@ -357,11 +365,10 @@ def find_orthologs(gtree, stree, recon, events=None, counts=True, species_branch
     for node, event in events.items():
         if event == "spec":
             leavesmat = [x.leaves() for x in node.children]
-            sp_counts = [util.hist_dict(util.mget(recon, row))
-                         for row in leavesmat]
+            sp_counts = [util.hist_dict(util.mget(recon, row)) for row in leavesmat]
 
             for i in range(len(leavesmat)):
-                for j in range(i+1, len(leavesmat)):
+                for j in range(i + 1, len(leavesmat)):
                     for gene1 in leavesmat[i]:
                         for gene2 in leavesmat[j]:
                             if gene1.name > gene2.name:
@@ -373,8 +380,7 @@ def find_orthologs(gtree, stree, recon, events=None, counts=True, species_branch
 
                             orth = [g1.name, g2.name]
                             if counts:
-                                orth.extend([sp_counts[a][recon[g1]],
-                                             sp_counts[b][recon[g2]]])
+                                orth.extend([sp_counts[a][recon[g1]], sp_counts[b][recon[g2]]])
                             if species_branch:
                                 orth.append(recon[node])
                             orths.append(tuple(orth))
@@ -396,11 +402,10 @@ def find_paralogs(gtree, stree, recon, events=None, counts=True, species_branch=
                 continue
 
             leavesmat = [x.leaves() for x in node.children]
-            sp_counts = [util.hist_dict(util.mget(recon, row))
-                         for row in leavesmat]
+            sp_counts = [util.hist_dict(util.mget(recon, row)) for row in leavesmat]
 
             for i in range(len(leavesmat)):
-                for j in range(i+1, len(leavesmat)):
+                for j in range(i + 1, len(leavesmat)):
                     for gene1 in leavesmat[i]:
                         for gene2 in leavesmat[j]:
                             if gene1.name > gene2.name:
@@ -412,14 +417,12 @@ def find_paralogs(gtree, stree, recon, events=None, counts=True, species_branch=
 
                             paralog = [g1.name, g2.name]
                             if counts:
-                                paralog.extend([sp_counts[a][recon[g1]],
-                                                sp_counts[b][recon[g2]]])
+                                paralog.extend([sp_counts[a][recon[g1]], sp_counts[b][recon[g2]]])
                             if species_branch:
                                 paralog.append(recon[node])
                             paralogs.append(tuple(paralog))
 
     return paralogs
-
 
 
 def subset_recon(tree, recon, events=None):
@@ -436,36 +439,38 @@ def subset_recon(tree, recon, events=None):
                 del events[node]
 
 
-
-#=============================================================================
+# =============================================================================
 # Reconciliation Input/Output
+
 
 def write_recon(filename, recon):
     """Write a reconciliation to a file"""
-    util.write_delim(filename, [(str(a.name), str(b.name))
-                                for a,b in recon.items()])
+    util.write_delim(filename, [(str(a.name), str(b.name)) for a, b in recon.items()])
 
 
 def read_recon(filename, tree1, tree2):
     """Read a reconciliation from a file"""
     recon = {}
     for a, b in util.read_delim(filename):
-        if a.isdigit(): a = int(a)
-        if b.isdigit(): b = int(b)
+        if a.isdigit():
+            a = int(a)
+        if b.isdigit():
+            b = int(b)
         recon[tree1.nodes[a]] = tree2.nodes[b]
     return recon
 
 
 def write_events(filename, events):
     """Write events data structure to file"""
-    util.write_delim(filename, [(str(a.name), b) for a,b in events.items()])
+    util.write_delim(filename, [(str(a.name), b) for a, b in events.items()])
 
 
 def read_events(filename, tree):
     """Read events data structure from file"""
     events = {}
     for name, event in util.read_delim(filename):
-        if name.isdigit(): name = int(name)
+        if name.isdigit():
+            name = int(name)
         events[tree.nodes[name]] = event
     return events
 
@@ -476,8 +481,7 @@ def write_recon_events(filename, recon, events=None, noevent=""):
     if events is None:
         events = dict.fromkeys(recon.keys(), noevent)
 
-    util.write_delim(filename, [(str(a.name), str(b.name), events[a])
-                                for a,b in recon.items()])
+    util.write_delim(filename, [(str(a.name), str(b.name), events[a]) for a, b in recon.items()])
 
 
 def read_recon_events(filename, tree1, tree2):
@@ -486,15 +490,17 @@ def read_recon_events(filename, tree1, tree2):
     recon = {}
     events = {}
     for a, b, event in util.read_delim(filename):
-        if a.isdigit(): a = int(a)
-        if b.isdigit(): b = int(b)
+        if a.isdigit():
+            a = int(a)
+        if b.isdigit():
+            b = int(b)
         node1 = tree1.nodes[a]
         recon[node1] = tree2.nodes[b]
         events[node1] = event
     return recon, events
 
 
-#============================================================================
+# ============================================================================
 # duplication loss counting
 #
 
@@ -502,18 +508,19 @@ def read_recon_events(filename, tree1, tree2):
 def init_dup_loss_tree(stree):
     # initalize counts to zero
     def walk(node):
-        node.data['dup'] = 0
-        node.data['loss'] = 0
-        node.data['appear'] = 0
-        node.data['genes'] = 0
+        node.data["dup"] = 0
+        node.data["loss"] = 0
+        node.data["appear"] = 0
+        node.data["genes"] = 0
         node.recurse(walk)
+
     walk(stree.root)
 
 
 def count_dup_loss_tree(tree, stree, gene2species, recon=None, events=None):
     """count dup loss
-       TODO: generalize to non-MPR recon/events
-             (in particular, to handle duplication followed immediately by loss)
+    TODO: generalize to non-MPR recon/events
+          (in particular, to handle duplication followed immediately by loss)
     """
 
     if recon is None:
@@ -533,14 +540,14 @@ def count_dup_loss_tree(tree, stree, gene2species, recon=None, events=None):
     # count dups
     for node, event in events.iteritems():
         if event == "dup":
-            recon[node].data['dup'] += 1
+            recon[node].data["dup"] += 1
             dup += 1
         elif event == "gene":
-            recon[node].data['genes'] += 1
+            recon[node].data["genes"] += 1
 
     # count losses
     for gnode, snode in losses:
-        snode.data['loss'] += 1
+        snode.data["loss"] += 1
         loss += 1
 
     return dup, loss, appear
@@ -548,17 +555,21 @@ def count_dup_loss_tree(tree, stree, gene2species, recon=None, events=None):
 
 def count_ancestral_genes(stree):
     """count ancestral genes"""
+
     def walk(node):
         if not node.is_leaf():
             counts = []
             for child in node.children:
                 walk(child)
-                counts.append(child.data['genes']
-                              - child.data['appear']
-                              - child.data['dup']
-                              + child.data['loss'])
-            assert util.equal(* counts), (node.name, str(counts))
-            node.data['genes'] = counts[0]
+                counts.append(
+                    child.data["genes"]
+                    - child.data["appear"]
+                    - child.data["dup"]
+                    + child.data["loss"]
+                )
+            assert util.equal(*counts), (node.name, str(counts))
+            node.data["genes"] = counts[0]
+
     walk(stree.root)
 
 
@@ -580,14 +591,14 @@ def count_dup_loss_trees(trees, stree, gene2species):
 def write_event_tree(stree, out=sys.stdout):
     labels = {}
     for name, node in stree.nodes.iteritems():
-        labels[name] = "[%s]\nD=%d,L=%d;\nG=%d;" % \
-                       (str(name),
-                        node.data['dup'], node.data['loss'],
-                        node.data['genes'])
+        labels[name] = "[%s]\nD=%d,L=%d;\nG=%d;" % (
+            str(name),
+            node.data["dup"],
+            node.data["loss"],
+            node.data["genes"],
+        )
 
-    treelib.draw_tree(stree, labels=labels, minlen=15, spacing=4,
-                      labelOffset=-3,
-                      out=out)
+    treelib.draw_tree(stree, labels=labels, minlen=15, spacing=4, labelOffset=-3, out=out)
 
 
 def dup_consistency(tree, recon, events):
@@ -601,6 +612,7 @@ def dup_consistency(tree, recon, events):
         return {}
 
     spset = {}
+
     def walk(node):
         for child in node.children:
             walk(child)
@@ -609,18 +621,18 @@ def dup_consistency(tree, recon, events):
         elif len(node.children) == 1:
             pass
         elif len(node.children) == 2:
-            spset[node] = (spset[node.children[0]] |
-                           spset[node.children[1]])
+            spset[node] = spset[node.children[0]] | spset[node.children[1]]
         else:
             raise Exception("too many children (%d)" % len(node.children))
+
     walk(tree.root)
 
     conf = {}
     for node in tree:
         if events[node] == "dup":
-            conf[node] = (len(spset[node.children[0]] &
-                              spset[node.children[1]]) /
-                          float(len(spset[node])))
+            conf[node] = len(spset[node.children[0]] & spset[node.children[1]]) / float(
+                len(spset[node])
+            )
 
     return conf
 
@@ -639,14 +651,21 @@ def fix_ils_errors(events, dupcons, newCopy=True):
     return events
 
 
-#=============================================================================
+# =============================================================================
 # tree rooting
 
 
-def recon_root(gtree, stree, gene2species=gene2species,
-               rootby="duploss", newCopy=True,
-               keepName=False, returnCost=False,
-               dupcost=1, losscost=1):
+def recon_root(
+    gtree,
+    stree,
+    gene2species=gene2species,
+    rootby="duploss",
+    newCopy=True,
+    keepName=False,
+    returnCost=False,
+    dupcost=1,
+    losscost=1,
+):
     """
     Reroot a tree by minimizing the number of duplications/losses/both
 
@@ -677,7 +696,7 @@ def recon_root(gtree, stree, gene2species=gene2species,
             if rootby in ["dup", "duploss"] and dupcost != 0:
                 cost += count_dup(gtree, events) * dupcost
             if rootby in ["loss", "duploss"] and losscost != 0:
-                cost += count_loss(gtree, stree,  recon) * losscost
+                cost += count_loss(gtree, stree, recon) * losscost
             return gtree, cost
         else:
             return gtree
@@ -686,9 +705,12 @@ def recon_root(gtree, stree, gene2species=gene2species,
         oldroot = gtree.root.name
 
     treelib.unroot(gtree, newCopy=False)
-    treelib.reroot(gtree,
-                   gtree.nodes[sorted(gtree.leaf_names())[0]].parent.name,
-                   onBranch=False, newCopy=False)
+    treelib.reroot(
+        gtree,
+        gtree.nodes[sorted(gtree.leaf_names())[0]].parent.name,
+        onBranch=False,
+        newCopy=False,
+    )
 
     # make recon root consistent for rerooting tree of the same names
     # TODO: there is the possibility of ties, they are currently broken
@@ -698,11 +720,13 @@ def recon_root(gtree, stree, gene2species=gene2species,
 
     # get list of edges to root on
     edges = []
+
     def walk(node):
         edges.append((node, node.parent))
         if not node.is_leaf():
             node.recurse(walk)
             edges.append((node, node.parent))
+
     for child in gtree.root.children:
         walk(child)
 
@@ -721,7 +745,7 @@ def recon_root(gtree, stree, gene2species=gene2species,
     if rootby in ["dup", "duploss"] and dupcost != 0:
         cost += count_dup(gtree, events) * dupcost
     if rootby in ["loss", "duploss"] and losscost != 0:
-        cost += count_loss(gtree, stree,  recon) * losscost
+        cost += count_loss(gtree, stree, recon) * losscost
     mincost = cost
 
     # try rooting on everything
@@ -754,9 +778,9 @@ def recon_root(gtree, stree, gene2species=gene2species,
         events[gtree.root] = label_events_node(gtree.root, recon)
 
         if rootby in ["dup", "duploss"] and dupcost != 0:
-            if events[gtree.root] ==  "dup":
+            if events[gtree.root] == "dup":
                 cost += dupcost
-            if events[node2] ==  "dup":
+            if events[node2] == "dup":
                 cost += dupcost
         if rootby in ["loss", "duploss"] and losscost != 0:
             cost += len(find_loss_under_node(gtree.root, recon)) * losscost
@@ -766,7 +790,6 @@ def recon_root(gtree, stree, gene2species=gene2species,
         if cost < mincost:
             mincost = cost
             minroot = edge
-
 
     # root tree by minroot
     if edge != minroot:
@@ -797,8 +820,9 @@ def midroot_recon(tree, stree, recon, events, params, generate):
                 walk(child, specs)
         else:
             specs.append(node)
-    #walk(node1, specs1)
-    #walk(node2, specs2)
+
+    # walk(node1, specs1)
+    # walk(node2, specs2)
     specs1 = node1.leaves()
     specs2 = node2.leaves()
 
@@ -837,16 +861,15 @@ def midroot_recon(tree, stree, recon, events, params, generate):
     totdist = (node1.dist + node2.dist) / generate
 
     left = node1.dist - stats.mean(diffs1)
-    right =  totdist - node2.dist + stats.mean(diffs2)
+    right = totdist - node2.dist + stats.mean(diffs2)
 
-    #print diffs1, diffs2
-    #print stats.mean(diffs1), stats.mean(diffs2)
+    # print diffs1, diffs2
+    # print stats.mean(diffs1), stats.mean(diffs2)
 
     mid = util.clamp((left + right) / 2.0, 0, totdist)
 
     node1.dist = mid * generate
     node2.dist = (totdist - mid) * generate
-
 
 
 def stree2gtree(stree, genes, gene2species):
@@ -858,55 +881,58 @@ def stree2gtree(stree, genes, gene2species):
     return tree
 
 
-#=============================================================================
+# =============================================================================
 # relationships
 # encoded using gene name tuples
 
 
 def get_gene_dups(tree, events):
     """Returns duplications as gene name tuples"""
-    return set(tuple(sorted([tuple(sorted(child.leaf_names()))
-                                   for child in node.children]))
-               for node, kind in events.iteritems()
-               if kind == "dup")
+    return set(
+        tuple(sorted([tuple(sorted(child.leaf_names())) for child in node.children]))
+        for node, kind in events.iteritems()
+        if kind == "dup"
+    )
+
 
 def get_speciations(tree, events):
     """Returns speciations as gene name tuples"""
-    return set(tuple(sorted([tuple(sorted(child.leaf_names()))
-                                   for child in node.children]))
-               for node, kind in events.iteritems()
-               if kind == "spec")
+    return set(
+        tuple(sorted([tuple(sorted(child.leaf_names())) for child in node.children]))
+        for node, kind in events.iteritems()
+        if kind == "spec"
+    )
 
 
 def get_gene_losses(tree, stree, recon):
     """Returns losses as gene name, species name tuples"""
-    return set((loss[0].name, loss[1].name)
-               for loss in find_loss(tree, stree, recon))
+    return set((loss[0].name, loss[1].name) for loss in find_loss(tree, stree, recon))
 
 
 def get_orthologs(tree, events):
     """Returns orthologs as gene name pairs"""
 
-    specs = [sorted([sorted(child.leaf_names())
-                     for child in node.children])
-             for node in events
-             if events[node] == "spec"]
+    specs = [
+        sorted([sorted(child.leaf_names()) for child in node.children])
+        for node in events
+        if events[node] == "spec"
+    ]
 
-    return set(tuple(sorted((a, b)))
-               for x in specs
-               for a in x[0]
-               for b in x[1])
+    return set(tuple(sorted((a, b))) for x in specs for a in x[0] for b in x[1])
 
 
-#=============================================================================
+# =============================================================================
 # Tree hashing
 #
+
 
 def hash_tree_compose(child_hashes, node=None):
     return "(%s)" % ",".join(child_hashes)
 
+
 def hash_tree_compose_names(child_hashes, node=None):
-     return "(%s)%s" % (",".join(child_hashes), node.name)
+    return "(%s)%s" % (",".join(child_hashes), node.name)
+
 
 def hash_tree(tree, smap=lambda x: x, compose=hash_tree_compose):
     def walk(node):
@@ -924,10 +950,12 @@ def hash_tree(tree, smap=lambda x: x, compose=hash_tree_compose):
     else:
         raise Exception("Expected Tree object")
 
+
 def hash_tree_names(tree, smap=lambda x: x, compose=hash_tree_compose_names):
     return hash_tree(tree, smap, compose)
 
-def hash_order_tree(tree, smap = lambda x: x):
+
+def hash_order_tree(tree, smap=lambda x: x):
     def walk(node):
         if node.is_leaf():
             return smap(node.name)
@@ -937,14 +965,15 @@ def hash_order_tree(tree, smap = lambda x: x):
             child_hashes = util.mget(child_hashes, ind)
             node.children = util.mget(node.children, ind)
             return hash_tree_compose(child_hashes)
+
     walk(tree.root)
 
 
-#=============================================================================
+# =============================================================================
 # branch-based reconciliations
 # useful for modeling HGT
 
-'''
+"""
 
 brecon = {node: branch_path, ...}
 branch_path = [(snode, event), ...]
@@ -967,7 +996,7 @@ These events happen at the end of a branch_path:
 These events happen everywhere else:
   specloss, transloss
 
-'''
+"""
 
 
 def brecon2recon_events(brecon):
@@ -1064,14 +1093,15 @@ def subtree_brecon_by_leaves(tree, brecon, leaves):
                         # these events don't need editing
                         branch_path.append((snode, event))
                     else:
-                        raise Exception("unknown event '%s'" %
-                                        str((snode, event)))
+                        raise Exception("unknown event '%s'" % str((snode, event)))
 
             # post process path: remove transloss where destination lineage
             # is lost.
-            remove = [i for i in xrange(len(branch_path)-1, -1, -1)
-                      if (branch_path[i][1] == "transloss" and
-                          branch_path[i][0] == branch_path[i+1][0])]
+            remove = [
+                i
+                for i in xrange(len(branch_path) - 1, -1, -1)
+                if (branch_path[i][1] == "transloss" and branch_path[i][0] == branch_path[i + 1][0])
+            ]
             for i in remove:
                 del branch_path[i]
 
@@ -1120,7 +1150,6 @@ def add_implied_spec_nodes_brecon(tree, brecon):
 
                 brecon[node2] = [[sp, "trans"]]
 
-
         brecon[node] = events[-1:]
 
 
@@ -1136,6 +1165,7 @@ def write_brecon(filename, brecon):
             out.write("\t" + str(snode.name) + "\t" + event)
         out.write("\n")
     out.close()
+
 
 def read_brecon(filename, tree, stree):
     """
@@ -1156,7 +1186,7 @@ def read_brecon(filename, tree, stree):
         events = []
         for i in range(1, len(tokens), 2):
             snode_name = tokens[i]
-            event = tokens[i+1]
+            event = tokens[i + 1]
 
             if snode_name.isdigit():
                 snode_name = int(snode_name)
@@ -1200,7 +1230,7 @@ def find_bevents(brecon):
 
                 # mark the species branch in which we expected a gene lineage
                 # but it is absent
-                next_snode = branch_path[i+1][0]
+                next_snode = branch_path[i + 1][0]
                 for schild in snode.children:
                     if schild != next_snode:
                         yield (node, "e", "loss", schild)
@@ -1219,7 +1249,7 @@ def find_bevents(brecon):
                 yield (node, "e", "loss", snode)
 
                 # it transfers to the next species
-                yield (node, "e", "trans", (snode, branch_path[i+1][0]))
+                yield (node, "e", "trans", (snode, branch_path[i + 1][0]))
 
             else:
                 raise Exception("unknown event '%s'" % event)
@@ -1232,19 +1262,22 @@ def write_bevents(out, bevents):
 
     for node, kind, event, details in bevents:
         if event == "trans":
-            out.write("%s\t%s\t%s\t%s\t%s\n" %
-                      (str(node.name), kind, event, str(details[0].name),
-                       str(details[1].name)))
+            out.write(
+                "%s\t%s\t%s\t%s\t%s\n"
+                % (
+                    str(node.name),
+                    kind,
+                    event,
+                    str(details[0].name),
+                    str(details[1].name),
+                )
+            )
         else:
-            out.write("%s\t%s\t%s\t%s\n" %
-                      (str(node.name), kind, event, str(details.name)))
+            out.write("%s\t%s\t%s\t%s\n" % (str(node.name), kind, event, str(details.name)))
 
 
-
-
-#=============================================================================
+# =============================================================================
 # add implied speciation nodes to a gene tree
-
 
 
 def add_spec_node(node, snode, tree, recon, events):
@@ -1272,6 +1305,7 @@ def add_spec_node(node, snode, tree, recon, events):
     events[newnode] = "spec"
 
     return newnode
+
 
 def remove_spec_node(node, tree, recon=None, events=None):
     """
@@ -1344,7 +1378,6 @@ def add_implied_spec_nodes(tree, stree, recon, events):
             node = node.parent
             snode = snode.parent
 
-
         # determine whether node.parent is a dup
         # if so, send (a.k.a. species end) is part of species path
         if events[parent] == "dup":
@@ -1361,8 +1394,9 @@ def remove_implied_spec_nodes(tree, added_nodes, recon=None, events=None):
         remove_spec_node(node, tree, recon, events)
 
 
-#=============================================================================
+# =============================================================================
 # reconciliation rearrangements
+
 
 def change_recon_up(recon, node, events=None):
     """
@@ -1401,17 +1435,27 @@ def can_change_recon_up(recon, node, events=None):
         prnode = rnode.parent
 
         # rearrangement is valid if
-        return (not node.is_leaf() and
-            prnode is not None and #  1. there is parent sp. branch
-            (node.parent is None or # 2. no parent to restrict move
-             rnode != recon[node.parent] # 3. not already matching parent
-             ))
+        return (
+            not node.is_leaf()
+            and prnode is not None
+            and (  #  1. there is parent sp. branch
+                node.parent is None
+                or rnode  # 2. no parent to restrict move
+                != recon[node.parent]  # 3. not already matching parent
+            )
+        )
 
 
-def enum_recon(tree, stree, depth=None,
-               step=0, preorder=None,
-               recon=None, events=None,
-               gene2species=None):
+def enum_recon(
+    tree,
+    stree,
+    depth=None,
+    step=0,
+    preorder=None,
+    recon=None,
+    events=None,
+    gene2species=None,
+):
     """
     Enumerate reconciliations between a gene tree and a species tree
     """
@@ -1435,17 +1479,13 @@ def enum_recon(tree, stree, depth=None,
 
                 # recurse
                 depth2 = depth - 1 if depth is not None else None
-                for r, e in enum_recon(tree, stree, depth2,
-                                       i, preorder,
-                                       recon, events):
+                for r, e in enum_recon(tree, stree, depth2, i, preorder, recon, events):
                     yield r, e
 
                 change_recon_down(recon, node, schild, events)
 
 
-
-
-#=============================================================================
+# =============================================================================
 # local rearrangements
 
 
@@ -1476,8 +1516,7 @@ def perform_nni(tree, node1, node2, change=0, rooted=True):
         node1, node2 = node2, node1
 
     # try to see if edge is one branch (not root edge)
-    if not rooted and treelib.is_rooted(tree) and \
-       node2 == tree.root:
+    if not rooted and treelib.is_rooted(tree) and node2 == tree.root:
         # special case of specifying root edge
         if node2.children[0] == node1:
             node2 = node2.children[1]
@@ -1491,8 +1530,7 @@ def perform_nni(tree, node1, node2, change=0, rooted=True):
     if node1.parent == node2.parent == tree.root:
         uncle = 0
 
-        if len(node2.children[0].children) < 2 and \
-           len(node2.children[1].children) < 2:
+        if len(node2.children[0].children) < 2 and len(node2.children[1].children) < 2:
             # can't do NNI on this branch
             return
     else:
@@ -1508,9 +1546,10 @@ def perform_nni(tree, node1, node2, change=0, rooted=True):
     node2.children[uncle].parent = node1
 
     # swap child pointers
-    node2.children[uncle], node1.children[change] = \
-        node1.children[change], node2.children[uncle]
-
+    node2.children[uncle], node1.children[change] = (
+        node1.children[change],
+        node2.children[uncle],
+    )
 
 
 def propose_random_nni(tree):
@@ -1527,13 +1566,11 @@ def propose_random_nni(tree):
             break
 
     node2 = node1.parent
-    #a = node1.children[random.randint(0, 1)]
-    #b = node2.children[1] if node2.children[0] == node1 else node2.children[0]
-    #assert a.parent.parent == b.parent
+    # a = node1.children[random.randint(0, 1)]
+    # b = node2.children[1] if node2.children[0] == node1 else node2.children[0]
+    # assert a.parent.parent == b.parent
 
     return node1, node2, random.randint(0, 1)
-
-
 
 
 def perform_spr(tree, subtree, newpos):
@@ -1577,7 +1614,7 @@ def perform_spr(tree, subtree, newpos):
     f = c.parent
     bi = 1 if c.children[0] == a else 0
     b = c.children[bi]
-    ci = 0  if f.children[0] == c else 1
+    ci = 0 if f.children[0] == c else 1
     d = e.parent
     ei = 0 if d.children[0] == e else 1
 
@@ -1587,8 +1624,6 @@ def perform_spr(tree, subtree, newpos):
     b.parent = f
     c.parent = d
     e.parent = c
-
-
 
 
 def propose_random_spr(tree):
@@ -1651,7 +1686,7 @@ def propose_random_spr(tree):
     nodes = tree.nodes.values()
     while True:
         a = random.sample(nodes, 1)[0]
-        if (a.parent is not None and a.parent.parent is not None):
+        if a.parent is not None and a.parent.parent is not None:
             break
     subtree = a
 
@@ -1686,11 +1721,11 @@ def propose_random_spr(tree):
     return subtree, newpos
 
 
-#=============================================================================
+# =============================================================================
 # tree search
 
-class TreeSearch (object):
 
+class TreeSearch(object):
     def __init__(self, tree):
         self.tree = tree
 
@@ -1716,8 +1751,7 @@ class TreeSearch (object):
         return self.propose()
 
 
-class TreeSearchNni (TreeSearch):
-
+class TreeSearchNni(TreeSearch):
     def __init__(self, tree):
         TreeSearch.__init__(self, tree)
         self.set_tree(tree)
@@ -1744,8 +1778,7 @@ class TreeSearchNni (TreeSearch):
         self.child = None
 
 
-class TreeSearchSpr (TreeSearch):
-
+class TreeSearchSpr(TreeSearch):
     def __init__(self, tree):
         TreeSearch.__init__(self, tree)
         self.set_tree(tree)
@@ -1762,8 +1795,7 @@ class TreeSearchSpr (TreeSearch):
 
         # remember sibling of node1
         p = self.node1.parent
-        self.node2 = (p.children[1] if p.children[0] == self.node1
-                      else p.children[0])
+        self.node2 = p.children[1] if p.children[0] == self.node1 else p.children[0]
 
         # perform SPR move
         perform_spr(self.tree, self.node1, node3)
@@ -1779,8 +1811,7 @@ class TreeSearchSpr (TreeSearch):
         self.node2 = None
 
 
-class TreeSearchMix (TreeSearch):
-
+class TreeSearchMix(TreeSearch):
     def __init__(self, tree):
         TreeSearch.__init__(self, tree)
         self.total_weight = 0.0
@@ -1802,7 +1833,7 @@ class TreeSearchMix (TreeSearch):
         choice = random.random() * self.total_weight
         s = self.methods[0][1]
         i = 0
-        while i < len(self.methods)-1 and s < choice:
+        while i < len(self.methods) - 1 and s < choice:
             i += 1
             s += self.methods[i][1]
 
@@ -1820,13 +1851,12 @@ class TreeSearchMix (TreeSearch):
             method[0].reset()
 
 
-class TreeSearchUnique (TreeSearch):
+class TreeSearchUnique(TreeSearch):
     """
     Propose unique tree topologies
     """
 
-    def __init__(self, tree, search, tree_hash=None, maxtries=5,
-                 auto_add=True):
+    def __init__(self, tree, search, tree_hash=None, maxtries=5, auto_add=True):
         TreeSearch.__init__(self, tree)
         self.search = search
         self.seen = set()
@@ -1839,7 +1869,6 @@ class TreeSearchUnique (TreeSearch):
         self.tree = tree
         self.search.set_tree(tree)
 
-
     def propose(self):
 
         for i in xrange(self.maxtries):
@@ -1848,10 +1877,10 @@ class TreeSearchUnique (TreeSearch):
             tree = self.search.propose()
             top = self._tree_hash(tree)
             if top not in self.seen:
-                #util.logger("tried", i, len(self.seen))
+                # util.logger("tried", i, len(self.seen))
                 break
         else:
-            #util.logger("maxtries", len(self.seen))
+            # util.logger("maxtries", len(self.seen))
             pass
 
         if self.auto_add:
@@ -1859,24 +1888,20 @@ class TreeSearchUnique (TreeSearch):
         self.tree = tree
         return self.tree
 
-
     def revert(self):
         self.tree = self.search.revert()
         return self.tree
 
-
     def reset(self):
         self.seen.clear()
         self.search.reset()
-
 
     def add_seen(self, tree):
         top = self._tree_hash(tree)
         self.seen.add(top)
 
 
-class TreeSearchPrescreen (TreeSearch):
-
+class TreeSearchPrescreen(TreeSearch):
     def __init__(self, tree, search, prescreen, poolsize):
         TreeSearch.__init__(self, tree)
         self.search = TreeSearchUnique(tree, search, auto_add=False)
@@ -1885,11 +1910,9 @@ class TreeSearchPrescreen (TreeSearch):
         self.oldtree = None
         self.set_tree(tree)
 
-
     def set_tree(self, tree):
         self.tree = tree
         self.search.set_tree(tree)
-
 
     def propose(self):
 
@@ -1930,25 +1953,21 @@ class TreeSearchPrescreen (TreeSearch):
                 treelib.set_tree_topology(self.tree, tree)
                 break
 
-
         self.search.add_seen(self.tree)
-
 
     def revert(self):
         if self.oldtree:
             treelib.set_tree_topology(self.tree, self.oldtree)
-
 
     def reset(self):
         self.oldtree = None
         self.search.reset()
 
 
-
-
-#=============================================================================
+# =============================================================================
 # Phylogenetic reconstruction: Neighbor-Joining
 #
+
 
 def neighborjoin(distmat, genes, usertree=None):
     """Neighbor joining algorithm"""
@@ -1957,7 +1976,6 @@ def neighborjoin(distmat, genes, usertree=None):
     leaves = {}
     dists = util.Dict(dim=2)
     restdists = {}
-
 
     # initialize distances
     for i in range(len(genes)):
@@ -1976,10 +1994,10 @@ def neighborjoin(distmat, genes, usertree=None):
     merges = []
     newnames = {}
     if usertree != None:
+
         def walk(node):
             if not node.is_leaf():
-                assert len(node.children) == 2, \
-                    Exception("usertree is not binary")
+                assert len(node.children) == 2, Exception("usertree is not binary")
 
                 for child in node:
                     walk(child)
@@ -1987,6 +2005,7 @@ def neighborjoin(distmat, genes, usertree=None):
                 newnames[node] = len(merges)
             else:
                 newnames[node] = node.name
+
         walk(usertree.root)
         merges.reverse()
 
@@ -1999,17 +2018,15 @@ def neighborjoin(distmat, genes, usertree=None):
             leaveslst = leaves.keys()
 
             for i in range(len(leaves)):
-                for j in range(i+1, len(leaves)):
+                for j in range(i + 1, len(leaves)):
                     gene1, gene2 = leaveslst[i], leaveslst[j]
-                    dist = dists[gene1][gene2] - restdists[gene1] \
-                                               - restdists[gene2]
+                    dist = dists[gene1][gene2] - restdists[gene1] - restdists[gene2]
                     if dist < low:
                         low = dist
                         lowpair = (gene1, gene2)
         else:
             node = merges.pop()
-            lowpair = (newnames[node.children[0]],
-                       newnames[node.children[1]])
+            lowpair = (newnames[node.children[0]], newnames[node.children[1]])
 
         # join gene1 and gene2
         gene1, gene2 = lowpair
@@ -2018,8 +2035,7 @@ def neighborjoin(distmat, genes, usertree=None):
         tree.add_child(parent, tree.nodes[gene2])
 
         # set distances
-        tree.nodes[gene1].dist = (dists[gene1][gene2] + restdists[gene1] -
-                                  restdists[gene2]) / 2.0
+        tree.nodes[gene1].dist = (dists[gene1][gene2] + restdists[gene1] - restdists[gene2]) / 2.0
         tree.nodes[gene2].dist = dists[gene1][gene2] - tree.nodes[gene1].dist
 
         # gene1 and gene2 are no longer leaves
@@ -2029,8 +2045,9 @@ def neighborjoin(distmat, genes, usertree=None):
         gene3 = parent.name
         r = 0
         for gene in leaves:
-            dists[gene3][gene] = (dists[gene1][gene] + dists[gene2][gene] -
-                                  dists[gene1][gene2]) / 2.0
+            dists[gene3][gene] = (
+                dists[gene1][gene] + dists[gene2][gene] - dists[gene1][gene2]
+            ) / 2.0
             dists[gene][gene3] = dists[gene3][gene]
             r += dists[gene3][gene]
         leaves[gene3] = 1
@@ -2048,8 +2065,7 @@ def neighborjoin(distmat, genes, usertree=None):
 
     # root tree according to usertree
     if usertree != None and treelib.is_rooted(usertree):
-        roots = set([newnames[usertree.root.children[0]],
-                     newnames[usertree.root.children[1]]])
+        roots = set([newnames[usertree.root.children[0]], newnames[usertree.root.children[1]]])
         newroot = None
         for child in tree.root.children:
             if child.name in roots:
@@ -2062,10 +2078,9 @@ def neighborjoin(distmat, genes, usertree=None):
     return tree
 
 
-
-
-#=============================================================================
+# =============================================================================
 # Phylogenetic reconstruct: Least Square Error
+
 
 def least_square_error(tree, distmat, genes, forcePos=True, weighting=False):
     """Least Squared Error algorithm for phylogenetic reconstruction"""
@@ -2084,7 +2099,6 @@ def least_square_error(tree, distmat, genes, forcePos=True, weighting=False):
         else:
             return array
 
-
     if treelib.is_rooted(tree):
         rootedge = sorted([x.name for x in tree.root.children])
         treelib.unroot(tree, newCopy=False)
@@ -2094,7 +2108,7 @@ def least_square_error(tree, distmat, genes, forcePos=True, weighting=False):
     # create pairwise dist array
     dists = []
     for i in xrange(len(genes)):
-        for j in xrange(i+1, len(genes)):
+        for j in xrange(i + 1, len(genes)):
             dists.append(distmat[i][j])
 
     # create topology matrix
@@ -2102,14 +2116,13 @@ def least_square_error(tree, distmat, genes, forcePos=True, weighting=False):
 
     # setup matrix and vector
     if weighting:
-        topmat2 = scipy.array([[util.safediv(x, math.sqrt(dists[i]), 0)
-                                for x in row]
-                               for i, row in enumerate(topmat)])
+        topmat2 = scipy.array(
+            [[util.safediv(x, math.sqrt(dists[i]), 0) for x in row] for i, row in enumerate(topmat)]
+        )
         paths = scipy.array(map(math.sqrt, dists))
     else:
         topmat2 = scipy.array(topmat)
         paths = scipy.array(dists)
-
 
     # solve LSE
     edgelens, resids, rank, singlars = scipy.linalg.lstsq(topmat2, paths)
@@ -2126,13 +2139,11 @@ def least_square_error(tree, distmat, genes, forcePos=True, weighting=False):
     paths = paths.tolist()
 
     # set branch lengths
-    set_branch_lengths_from_matrix(tree, edges, edgelens, paths, resids,
-                                   topmat=topmat, rootedge=rootedge)
+    set_branch_lengths_from_matrix(
+        tree, edges, edgelens, paths, resids, topmat=topmat, rootedge=rootedge
+    )
 
-    return util.Bundle(resids=resids,
-                       paths=paths,
-                       edges=edges,
-                       topmat=topmat)
+    return util.Bundle(resids=resids, paths=paths, edges=edges, topmat=topmat)
 
 
 def make_topology_matrix(tree, genes):
@@ -2144,7 +2155,7 @@ def make_topology_matrix(tree, genes):
 
     # create topology matrix
     n = len(genes)
-    ndists = n*(n-1) / 2
+    ndists = n * (n - 1) / 2
     topmat = util.make_matrix(ndists, len(edges))
 
     vlookup = util.list2lookup(genes)
@@ -2154,14 +2165,15 @@ def make_topology_matrix(tree, genes):
         for gene1 in set1:
             for gene2 in set2:
                 i, j = util.sort([vlookup[gene1], vlookup[gene2]])
-                index = i*n-i*(i+1)/2+j-i-1
+                index = i * n - i * (i + 1) / 2 + j - i - 1
                 topmat[index][e] = 1.0
 
     return topmat, edges
 
 
-def set_branch_lengths_from_matrix(tree, edges, edgelens, paths, resids,
-                                   topmat=None, rootedge=None):
+def set_branch_lengths_from_matrix(
+    tree, edges, edgelens, paths, resids, topmat=None, rootedge=None
+):
     # recreate rooting branches
     if rootedge != None:
         # restore original rooting
@@ -2196,8 +2208,6 @@ def set_branch_lengths_from_matrix(tree, edges, edgelens, paths, resids,
         tree.nodes[gene1].dist = edgelens[i]
 
 
-
-
 def tree2distmat(tree, leaves):
     """Returns pair-wise distances between leaves of a tree"""
 
@@ -2211,10 +2221,10 @@ def tree2distmat(tree, leaves):
     return mat
 
 
-
-#============================================================================
+# ============================================================================
 # branch splits
 #
+
 
 def find_splits(tree, rooted=False):
     """
@@ -2228,6 +2238,7 @@ def find_splits(tree, rooted=False):
 
     # find descendants
     descendants = {}
+
     def walk(node):
         if node.is_leaf():
             s = descendants[node] = set([node.name])
@@ -2237,6 +2248,7 @@ def find_splits(tree, rooted=False):
                 s.update(walk(child))
             descendants[node] = s
         return s
+
     for child in tree.root.children:
         walk(child)
 
@@ -2262,8 +2274,7 @@ def find_splits(tree, rooted=False):
             set1 = tuple(sorted(leaves))
             set2 = tuple(sorted(all_leaves - leaves))
             if not rooted:
-                if len(set1) > len(set2) or \
-                   (len(set1) == len(set2) and min(set1) > min(set2)):
+                if len(set1) > len(set2) or (len(set1) == len(set2) and min(set1) > min(set2)):
                     set1, set2 = set2, set1
             splits.append((set1, set2))
 
@@ -2279,8 +2290,10 @@ def split_string(split, leaves=None, leafDelim=" ", splitDelim="|"):
 
     if leaves is not None:
         lookup = util.list2lookup(leaves)
-        split = (sorted(split[0], key=lambda x: lookup[x]),
-                 sorted(split[0], key=lambda x: lookup[x]))
+        split = (
+            sorted(split[0], key=lambda x: lookup[x]),
+            sorted(split[0], key=lambda x: lookup[x]),
+        )
 
     return leafDelim.join(split[0]) + splitDelim + leafDelim.join(split[1])
 
@@ -2318,7 +2331,7 @@ def robinson_foulds_error(tree1, tree2, rooted=False):
 
     overlap = set(splits1) & set(splits2)
 
-    #assert len(splits1) == len(splits2)
+    # assert len(splits1) == len(splits2)
 
     denom = float(max(len(splits1), len(splits2)))
 
@@ -2328,8 +2341,9 @@ def robinson_foulds_error(tree1, tree2, rooted=False):
         return 1 - (len(overlap) / denom)
 
 
-#=============================================================================
+# =============================================================================
 # consensus methods
+
 
 def _consensus_special(trees, rooted=False):
     """
@@ -2383,21 +2397,20 @@ def add_bootstraps(tree, trees, rooted=False):
             s = set()
             for child in node.children:
                 s.update(walk(child))
-            node.data["boot"] = counts.get(tuple(sorted(s)),0)/float(ntrees)
+            node.data["boot"] = counts.get(tuple(sorted(s)), 0) / float(ntrees)
         return s
+
     for child in tree.root.children:
         walk(child)
 
     if rooted:
-        if tree.root.children[0].is_leaf() or \
-           tree.root.children[1].is_leaf():
-            tree.root.children[0].data["boot"] =  0
-            tree.root.children[1].data["boot"] =  0
+        if tree.root.children[0].is_leaf() or tree.root.children[1].is_leaf():
+            tree.root.children[0].data["boot"] = 0
+            tree.root.children[1].data["boot"] = 0
         else:
-            b = (tree.root.children[0].data["boot"] + \
-                 tree.root.children[1].data["boot"]) / 2.0
-            tree.root.children[0].data["boot"] =  b
-            tree.root.children[1].data["boot"] =  b
+            b = (tree.root.children[0].data["boot"] + tree.root.children[1].data["boot"]) / 2.0
+            tree.root.children[0].data["boot"] = b
+            tree.root.children[1].data["boot"] = b
 
     return tree
 
@@ -2428,7 +2441,7 @@ def consensus_majority_rule(trees, extended=True, rooted=False):
             split_counts[split] += 1
     contree.nextname = max(tree.nextname for tree in trees)
 
-    #util.print_dict(split_counts)
+    # util.print_dict(split_counts)
 
     # choose splits
     pick_splits = 0
@@ -2445,8 +2458,7 @@ def consensus_majority_rule(trees, extended=True, rooted=False):
             pick_splits += 1
 
         # stop if enough splits are choosen
-        if ((rooted and pick_splits >= nleaves - 2) or
-            (not rooted and pick_splits >= nleaves - 3)):
+        if (rooted and pick_splits >= nleaves - 2) or (not rooted and pick_splits >= nleaves - 3):
             break
 
     # add remaining leaves and remove clade data
@@ -2588,7 +2600,6 @@ def _post_process_split_tree(tree):
             del node.data["leaves"]
 
 
-
 def ensure_binary_tree(tree):
     """
     Arbitrarly expand multifurcating nodes
@@ -2598,8 +2609,7 @@ def ensure_binary_tree(tree):
     if len(tree.root.children) > 2:
         treelib.reroot(tree, tree.root.children[0].name, newCopy=False)
 
-    multibranches = [node for node in tree
-                     if len(node.children) > 2]
+    multibranches = [node for node in tree if len(node.children) > 2]
 
     for node in multibranches:
         children = list(node.children)
@@ -2613,7 +2623,7 @@ def ensure_binary_tree(tree):
             left = children.pop()
             right = children.pop()
             newnode = treelib.TreeNode(tree.new_name())
-            newnode.data['boot'] = 0
+            newnode.data["boot"] = 0
             tree.add_child(newnode, left)
             tree.add_child(newnode, right)
             children.append(newnode)
@@ -2623,28 +2633,25 @@ def ensure_binary_tree(tree):
         tree.add_child(node, children.pop())
 
 
-
-#=============================================================================
+# =============================================================================
 # simulation
 
-def make_jc_matrix(t, a=1.):
+
+def make_jc_matrix(t, a=1.0):
     """
     Returns Juke Cantor transition matrix
 
     t -- time span
     a -- mutation rate (sub/site/time)
     """
-    eat = math.exp(-4*a/3.*t)
-    r =  .25 * (1 + 3*eat)
-    s =  .25 * (1 - eat)
+    eat = math.exp(-4 * a / 3.0 * t)
+    r = 0.25 * (1 + 3 * eat)
+    s = 0.25 * (1 - eat)
 
-    return [[r, s, s, s],
-            [s, r, s, s],
-            [s, s, r, s],
-            [s, s, s, r]]
+    return [[r, s, s, s], [s, r, s, s], [s, s, r, s], [s, s, s, r]]
 
 
-def make_hky_matrix(t, bgfreq=(.25,.25,.25,.25), kappa=1.0):
+def make_hky_matrix(t, bgfreq=(0.25, 0.25, 0.25, 0.25), kappa=1.0):
     """
     Returns HKY transition matrix
 
@@ -2662,26 +2669,20 @@ def make_hky_matrix(t, bgfreq=(.25,.25,.25,.25), kappa=1.0):
     pi_y = bgfreq[1] + bgfreq[3]
     rho = pi_r / pi_y
 
-
     # convert the usual ratio definition (kappa) to Felsenstein's
     # definition (R)
-    ratio = (bgfreq[3]*bgfreq[1] + bgfreq[0]*bgfreq[2]) * kappa / (pi_y*pi_r)
-
+    ratio = (bgfreq[3] * bgfreq[1] + bgfreq[0] * bgfreq[2]) * kappa / (pi_y * pi_r)
 
     # determine HKY parameters alpha_r, alpha_y, and beta
-    b = 1.0 / (2.0 * pi_r * pi_y * (1.0+ratio))
-    a_y = ((pi_r*pi_y*ratio - bgfreq[0]*bgfreq[2] - bgfreq[1]*bgfreq[3]) /
-           (2.0*(1+ratio)*(pi_y*bgfreq[0]*bgfreq[2]*rho +
-                           pi_r*bgfreq[1]*bgfreq[3])))
+    b = 1.0 / (2.0 * pi_r * pi_y * (1.0 + ratio))
+    a_y = (pi_r * pi_y * ratio - bgfreq[0] * bgfreq[2] - bgfreq[1] * bgfreq[3]) / (
+        2.0 * (1 + ratio) * (pi_y * bgfreq[0] * bgfreq[2] * rho + pi_r * bgfreq[1] * bgfreq[3])
+    )
     a_r = rho * a_y
-
 
     # make transition probability P(j | i, t)
 
-    mat = [[0, 0, 0, 0],
-           [0, 0, 0, 0],
-           [0, 0, 0, 0],
-           [0, 0, 0, 0]]
+    mat = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
 
     for i in (0, 1, 2, 3):
         for j in (0, 1, 2, 3):
@@ -2691,18 +2692,20 @@ def make_hky_matrix(t, bgfreq=(.25,.25,.25,.25), kappa=1.0):
             if i in (0, 2):  # purine
                 a_i = a_r
                 pi_ry = pi_r
-            else: # prymidine
+            else:  # prymidine
                 a_i = a_y
                 pi_ry = pi_y
             delta_ij = int(i == j)
             e_ij = int((i in (0, 2)) == (j in (0, 2)))
 
-            ait = math.exp(-a_i*t)
-            ebt = math.exp(-b*t)
+            ait = math.exp(-a_i * t)
+            ebt = math.exp(-b * t)
 
-            mat[i][j] = (ait*ebt * delta_ij +
-                         ebt * (1.0 - ait) * (bgfreq[j]*e_ij/pi_ry) +
-                         (1.0 - ebt) * bgfreq[j])
+            mat[i][j] = (
+                ait * ebt * delta_ij
+                + ebt * (1.0 - ait) * (bgfreq[j] * e_ij / pi_ry)
+                + (1.0 - ebt) * bgfreq[j]
+            )
 
     return mat
 
@@ -2721,17 +2724,21 @@ def sim_seq_branch(seq, time, matrix_func):
     return "".join(seq2)
 
 
-def sim_seq_tree(tree, seqlen, matrix_func=make_jc_matrix,
-                 bgfreq=[.25,.25,.25,.25], rootseq=None,
-                 keep_internal=False):
+def sim_seq_tree(
+    tree,
+    seqlen,
+    matrix_func=make_jc_matrix,
+    bgfreq=[0.25, 0.25, 0.25, 0.25],
+    rootseq=None,
+    keep_internal=False,
+):
     """Simulate the evolution of a sequence down a tree"""
 
     bases = "ACGT"
 
     # make root sequence
     if rootseq is None:
-        rootseq = [bases[stats.sample(bgfreq)]
-                   for i in xrange(seqlen)]
+        rootseq = [bases[stats.sample(bgfreq)] for i in xrange(seqlen)]
 
     # leaf sequences
     seqs = fasta.FastaDict()
@@ -2748,19 +2755,24 @@ def sim_seq_tree(tree, seqlen, matrix_func=make_jc_matrix,
         for child in node.children:
             seq2 = sim_seq_branch(seq, child.dist, matrix_func)
             walk(child, seq2)
+
     walk(tree.root, rootseq)
 
     return seqs
 
 
-
-#=============================================================================
+# =============================================================================
 # gene tree simulation
 
 
-def sample_dlt_gene_tree(stree, duprate, lossrate, transrate,
-                         genename=lambda sp, x: sp + "_" + str(x),
-                         removeloss=True):
+def sample_dlt_gene_tree(
+    stree,
+    duprate,
+    lossrate,
+    transrate,
+    genename=lambda sp, x: sp + "_" + str(x),
+    removeloss=True,
+):
     """Simulate a gene tree within a species tree with dup, loss, transfer"""
 
     # TODO: return brecon instead of (recon, events)
@@ -2775,7 +2787,6 @@ def sample_dlt_gene_tree(stree, duprate, lossrate, transrate,
     losses = set()
 
     totalrate = duprate + lossrate + transrate
-
 
     def sim_branch(node, snode, dist):
 
@@ -2837,7 +2848,6 @@ def sample_dlt_gene_tree(stree, duprate, lossrate, transrate,
                 sim_branch(node, snode, dist - time)
                 sim_branch(node, dest, age - stimes[dest])
 
-
     def sim_spec(node, snode):
         if snode.is_leaf():
             # leaf in species tree, terminal gene lineage
@@ -2850,21 +2860,24 @@ def sample_dlt_gene_tree(stree, duprate, lossrate, transrate,
 
     sim_spec(tree.root, stree.root)
 
-
     if removeloss:
         keep = [node for node in tree.leaves() if node not in losses]
         treelib.subtree_by_leaves(tree, keep, keep_single=False)
-
 
     brecon = recon_events2brecon(recon, events)
 
     return tree, brecon
 
 
-
-def sample_dltr_gene_tree(stree, duprate, lossrate, transrate, recombrate,
-                          genename=lambda sp, x: sp + "_" + str(x),
-                          removeloss=True):
+def sample_dltr_gene_tree(
+    stree,
+    duprate,
+    lossrate,
+    transrate,
+    recombrate,
+    genename=lambda sp, x: sp + "_" + str(x),
+    removeloss=True,
+):
     """Simulate a gene tree within a species tree with dup, loss, transfer"""
 
     stimes = treelib.get_tree_timestamps(stree)
@@ -2880,7 +2893,7 @@ def sample_dltr_gene_tree(stree, duprate, lossrate, transrate, recombrate,
 
     totalrate = duprate + lossrate + transrate + recombrate
 
-    class Lineage (object):
+    class Lineage(object):
         def __init__(self, node, snode):
             self.node = node
             self.snode = snode
@@ -3001,18 +3014,15 @@ def sample_dltr_gene_tree(stree, duprate, lossrate, transrate, recombrate,
             lineages.remove(gene)
 
     if removeloss:
-        keep =  [x for x in tree.leaves() if isinstance(x.name, str)]
+        keep = [x for x in tree.leaves() if isinstance(x.name, str)]
         subtree_brecon_by_leaves(tree, brecon, keep)
 
     return tree, brecon
 
 
-
-
-
-
-#=============================================================================
+# =============================================================================
 # file functions
+
 
 def phylofile(famdir, famid, ext):
     """
@@ -3021,8 +3031,3 @@ def phylofile(famdir, famid, ext):
     famdir/famid/famid.ext
     """
     return os.path.join(famdir, famid, famid + ext)
-
-
-
-
-

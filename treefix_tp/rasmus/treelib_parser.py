@@ -1,4 +1,3 @@
-
 import os
 
 try:
@@ -8,34 +7,32 @@ except ImportError:
     from ply import lex, yacc
 
 
-literals = ['+', ':', ';', '(', ')', ","]
+literals = ["+", ":", ";", "(", ")", ","]
 t_ignore = " \t\n"
 
-tokens = (
-    "NAME",
-    "DATA"
-)
+tokens = ("NAME", "DATA")
 
 
 t_NAME = r"[\w\-_\.]+([\w\-_\. ]*[\w\-_\.])?"
 t_DATA = r"[^,;\(\)]+"
 
-#t_DATA2 = r"^([^,;\(\)\[\]]+|[^,;\(\)\[\]]*\[[^\]]*\][^,;\(\)\[\]]*)$"
-#t_DATA =  r"([^,;\(\)]+|[^,;\(\)]*\[[^\]]*\])"
-#[^,;\(\)]*XXX\[[^\]]*\])"
-#[^,;\(\)]+)"
+# t_DATA2 = r"^([^,;\(\)\[\]]+|[^,;\(\)\[\]]*\[[^\]]*\][^,;\(\)\[\]]*)$"
+# t_DATA =  r"([^,;\(\)]+|[^,;\(\)]*\[[^\]]*\])"
+# [^,;\(\)]*XXX\[[^\]]*\])"
+# [^,;\(\)]+)"
 
 
 def t_error(t):
     raise TypeError("Unknown text '%s'" % (t.value,))
 
 
-#print re.match(t_DATA2, ";")
-#print re.match("^"+t_DATA+"$", ":1")
-#print re.match("^"+t_DATA+"$", ":1[hi]")
-#sys.exit()
+# print re.match(t_DATA2, ";")
+# print re.match("^"+t_DATA+"$", ":1")
+# print re.match("^"+t_DATA+"$", ":1[hi]")
+# sys.exit()
 
-#=============================================================================
+# =============================================================================
+
 
 def p_tree(p):
     """
@@ -46,12 +43,12 @@ def p_tree(p):
 
 def p_subtree(p):
     """subtree : "(" branch_set ")" NAME DATA
-               | "(" branch_set ")" NAME
-               | "(" branch_set ")" DATA
-               | "(" branch_set ")"
-               | NAME DATA
-               | NAME
-               | DATA
+    | "(" branch_set ")" NAME
+    | "(" branch_set ")" DATA
+    | "(" branch_set ")"
+    | NAME DATA
+    | NAME
+    | DATA
     """
     if len(p) == 6:
         p[0] = (p[2], "", p[4] + p[5])
@@ -70,7 +67,7 @@ def p_subtree(p):
 
 def p_branch_set(p):
     """branch_set : subtree "," branch_set
-                  | subtree
+    | subtree
     """
 
     if len(p) == 2:
@@ -86,8 +83,8 @@ def p_error(p):
         raise Exception("Syntax error")
 
 
-#lex.lex()
-#yacc.yacc()
+# lex.lex()
+# yacc.yacc()
 
 outdir = os.path.dirname(__file__)
 lex.lex(debug=0, optimize=1, lextab="treelib_lex", outputdir=outdir)
@@ -99,7 +96,7 @@ if __name__ == "__main__":
     print(yacc.parse("((aa:1.0,bb:2)x:33,(cc:4,dd:5):6);"))
 
 
-#=============================================================================
+# =============================================================================
 # OLD parsing code
 
 
@@ -114,12 +111,12 @@ if __name__ == "__main__":
    Length --> empty | ":" number
 """
 
-'''
+"""
 def t_FLOAT(t):
     r"[+-]?(\d+\.?|\.\d)(\d+([eE][+-]?\d+)?)?"
     t.value = float(t.value)
     return t
-'''
+"""
 
 '''
 def _tree(p):
@@ -175,7 +172,7 @@ def _branch(p):
 '''
 
 
-'''
+"""
         # literals
         lparen    = Literal("(").suppress()
         rparen    = Literal(")").suppress()
@@ -218,4 +215,4 @@ def _branch(p):
 
         # top level rule
         tree = subtree + Word(";").suppress()
-'''
+"""

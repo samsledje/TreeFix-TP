@@ -9,15 +9,15 @@ import re
 import tempfile
 
 # treefix libraries
-from treefix.models import CostModel
+from treefix_tp.models import CostModel
 
 # rasmus libraries
-from treefix.deps.rasmus import treelib, util
+from treefix_tp.rasmus import treelib, util
 
 # compbio libraries
-from treefix.deps.compbio import phylo
+from treefix_tp.compbio import phylo
 
-#=============================================================================
+# =============================================================================
 # command
 
 # uses fitch.linux
@@ -27,12 +27,13 @@ from treefix.deps.compbio import phylo
 
 patt = r"Score: (?P<cost>\d+)"
 
-#============================================================================
+# ============================================================================
+
 
 class FitchModel(CostModel):
     """Computes cost of running Fitch's algorithm for a given tree"""
 
-    def __init__(self, extra):
+    def __init__(self, extra=None):
         """Initializes the model"""
         CostModel.__init__(self, extra)
 
@@ -40,17 +41,26 @@ class FitchModel(CostModel):
         self.mincost = 0
 
         parser = optparse.OptionParser(prog="FitchModel")
-        parser.add_option("--cmd", dest="cmd",
-                          metavar="<fitch command>",
-                          default="fitch.linux",
-                          help="fitch command (default: \"fitch\")")
-        parser.add_option("--seed", dest="seed",
-                          metavar="<seed>",
-                          type="int",
-                          help="user defined random number generator seed")
-        parser.add_option("--tmp", dest="tmp",
-                          metavar="<tmp directory>",
-                          help="directory for temporary files (must exist)")
+        parser.add_option(
+            "--cmd",
+            dest="cmd",
+            metavar="<fitch command>",
+            default="fitch.linux",
+            help='fitch command (default: "fitch")',
+        )
+        parser.add_option(
+            "--seed",
+            dest="seed",
+            metavar="<seed>",
+            type="int",
+            help="user defined random number generator seed",
+        )
+        parser.add_option(
+            "--tmp",
+            dest="tmp",
+            metavar="<tmp directory>",
+            help="directory for temporary files (must exist)",
+        )
 
         self.parser = parser
 
@@ -61,16 +71,16 @@ class FitchModel(CostModel):
             if not os.path.exists(os.path.realpath(os.path.abspath(self.tmp))):
                 raise Exception("--tmp directory does not exist")
 
-        #make temporary file
+        # make temporary file
         fd, self.treefile = tempfile.mkstemp(dir=self.tmp)
         os.close(fd)
 
         # hack for cygwin (ranger-dtl-U cannot handle system files)
-        if sys.platform == 'cygwin':
+        if sys.platform == "cygwin":
             cwd = os.getcwd()
             if self.treefile.startswith(cwd):
                 # remove working path (and backslash)
-                self.treefile = self.treefile[len(cwd)+1:]
+                self.treefile = self.treefile[len(cwd) + 1 :]
             else:
                 raise Exception("--tmp must be a relative path when using cygwin")
 
@@ -107,10 +117,10 @@ class FitchModel(CostModel):
         """Returns the cost (minimal number of transmissions)"""
 
         # write  gene tree using species map
-        treeout = util.open_stream(self.treefile, 'w')
+        treeout = util.open_stream(self.treefile, "w")
         gtree.write(treeout, oneline=True, writeData=lambda x: "")
-        #gtree.write(treeout, namefunc=lambda name: self.gene2species(name),
-        #oneline=True, writeData=lambda x: "")
+        # gtree.write(treeout, namefunc=lambda name: self.gene2species(name),
+        # oneline=True, writeData=lambda x: "")
         treeout.write("\n")
         treeout.close()
 
@@ -121,10 +131,9 @@ class FitchModel(CostModel):
 
         # execute command
         try:
-            proc = subprocess.Popen(args,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    universal_newlines=True)
+            proc = subprocess.Popen(
+                args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True
+            )
             ret = proc.wait()
         except:
             raise Exception("fitch.linux failed")

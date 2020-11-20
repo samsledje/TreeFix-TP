@@ -35,15 +35,16 @@ from treefix_tp.rasmus import treelib
 from . import fasta
 
 
-#=============================================================================
+# =============================================================================
 # managing input, output, and execution of PHYLIP-like programs
 #
+
 
 def validate_seqs(seqs):
     """Ensures sequences are all same size"""
 
     sizes = map(len, seqs.values())
-    assert util.equal(* sizes), "sequences are not same length"
+    assert util.equal(*sizes), "sequences are not same length"
 
 
 def check_temp_files(force=False):
@@ -51,9 +52,7 @@ def check_temp_files(force=False):
 
     if force:
         os.system("rm -f infile outfile outtree")
-    elif os.path.isfile("infile") or \
-         os.path.isfile("outfile") or \
-         os.path.isfile("outtree"):
+    elif os.path.isfile("infile") or os.path.isfile("outfile") or os.path.isfile("outtree"):
         raise Exception("Can't run phylip, 'infile'/'outfile'/'outtree' is in current dir!")
 
 
@@ -63,17 +62,26 @@ def exec_phylip(cmd, args, verbose=False):
     util.logger("exec: %s" % cmd)
     util.logger("args: %s" % args)
 
-
     if verbose:
         util.logger("exec: %s" % cmd)
         util.logger("args: %s" % args)
-        assert os.system("""cat <<EOF | %s
-%s""" % (cmd, args)) == 0
+        assert (
+            os.system(
+                """cat <<EOF | %s
+%s"""
+                % (cmd, args)
+            )
+            == 0
+        )
     else:
-        assert os.system("""cat <<EOF | %s >/dev/null 2>&1
-%s""" % (cmd, args)) == 0
-
-
+        assert (
+            os.system(
+                """cat <<EOF | %s >/dev/null 2>&1
+%s"""
+                % (cmd, args)
+            )
+            == 0
+        )
 
 
 def create_temp_dir(prefix="tmpphylip_"):
@@ -107,8 +115,7 @@ def save_temp_dir(directory, newname):
     os.rename(directory, newname)
 
 
-
-#=============================================================================
+# =============================================================================
 # common input/output
 #
 
@@ -164,16 +171,16 @@ def write_phylip_align(out, seqs, strip_names=True):
     validate_seqs(seqs)
 
     if strip_names:
-        print >>out, len(seqs), len(seqs.values()[0])
+        print >> out, len(seqs), len(seqs.values()[0])
         for i, name in enumerate(seqs.keys()):
-            print >>out, "%8s  %s" % (phylip_padding(str(i), 8), seqs[name])
+            print >> out, "%8s  %s" % (phylip_padding(str(i), 8), seqs[name])
     else:
-        print >>out, len(seqs), len(seqs.values()[0])
+        print >> out, len(seqs), len(seqs.values()[0])
         for i, name in enumerate(seqs.keys()):
             if name <= 8:
-                print >>out, "%8s  %s" % (name, seqs[name])
+                print >> out, "%8s  %s" % (name, seqs[name])
             else:
-                print >>out, "%s  %s" % (name, seqs[name])
+                print >> out, "%s  %s" % (name, seqs[name])
 
     return seqs.keys()
 
@@ -197,7 +204,6 @@ def read_out_tree(filename, labels, iters=1):
     if not line[0].isdigit():
         # reopen file
         infile = file(filename)
-
 
     if iters == 1:
         # parse output
@@ -233,7 +239,6 @@ def write_boot_trees(filename, trees, counts=None):
     for tree, count in zip(trees, counts):
         for i in range(count):
             out.write(tree.get_one_line_newick() + "\n")
-
 
 
 def read_dist_matrix(filename):
@@ -319,7 +324,6 @@ ______10    0.68634  0.49679  0.58559  0.49340  0.47421  0.49588  0.51126
             else:
                 val = float(val)
 
-
             mat[i][j] = val
             mat[j][i] = val
             j += 1
@@ -357,12 +361,10 @@ def write_dist_matrix(mat, labels=None, out=sys.stdout):
         out.write("\n")
 
 
-
-
-
-#=============================================================================
+# =============================================================================
 # common conversions
 #
+
 
 def phylip_padding(name, width=8):
     return "_" * (width - len(name)) + name
@@ -385,16 +387,23 @@ def rename_tree_with_ids(tree, labels):
             tree.rename(name, phylip_padding(str(lookup[name])))
 
 
-
-#=============================================================================
+# =============================================================================
 # tree building programs
 #
 
-def align2tree(prog, seqs, verbose=True, force = False, args=None,
-               usertree=None, saveOutput="",
-               bootiter=1,
-               seed=1,
-               jumble=1):
+
+def align2tree(
+    prog,
+    seqs,
+    verbose=True,
+    force=False,
+    args=None,
+    usertree=None,
+    saveOutput="",
+    bootiter=1,
+    seed=1,
+    jumble=1,
+):
     validate_seqs(seqs)
     cwd = create_temp_dir()
 
@@ -411,17 +420,15 @@ def align2tree(prog, seqs, verbose=True, force = False, args=None,
     # create user tree if given
     if usertree != None:
         write_in_tree("intree", usertree, labels)
-        args = "u\n" + args # add user tree option
-
+        args = "u\n" + args  # add user tree option
 
     # bootstrap alignment if needed
     if bootiter > 1:
-    	exec_phylip("seqboot", "r\n%d\ny\n%d" % (bootiter, seed), verbose)
+        exec_phylip("seqboot", "r\n%d\ny\n%d" % (bootiter, seed), verbose)
         os.rename("outfile", "infile")
 
-    	# add bootstrap arguments
-    	args = "m\nD\n%d\n%d\n%d\n%s" % (bootiter, seed, jumble, args)
-
+        # add bootstrap arguments
+        args = "m\nD\n%d\n%d\n%d\n%s" % (bootiter, seed, jumble, args)
 
     # run phylip
     exec_phylip(prog, args, verbose)
@@ -447,14 +454,12 @@ def align2tree(prog, seqs, verbose=True, force = False, args=None,
         else:
             trees = read_out_tree("outtree", labels, bootiter)
 
-
     if saveOutput != "":
         save_temp_dir(cwd, saveOutput)
     else:
         cleanup_temp_dir(cwd)
 
     util.toc()
-
 
     if bootiter == 1:
         return tree
@@ -469,55 +474,59 @@ def is_phylip_give_up(filename):
     return False
 
 
+def protpars(seqs, verbose=True, force=False, args="y", usertree=None, saveOutput="", bootiter=1):
+    return align2tree(
+        "protpars",
+        seqs,
+        verbose=verbose,
+        force=force,
+        args=args,
+        usertree=usertree,
+        saveOutput=saveOutput,
+        bootiter=bootiter,
+    )
 
 
-
-def protpars(seqs, verbose=True, force = False, args="y",
-          usertree=None, saveOutput="", bootiter=1):
-    return align2tree("protpars", seqs,
-                      verbose=verbose,
-                      force=force,
-                      args=args,
-                      usertree=usertree,
-                      saveOutput=saveOutput,
-                      bootiter=bootiter)
-
-
-def proml(seqs, verbose=True, force = False, args="y",
-          usertree=None, saveOutput="", bootiter=1):
-    return align2tree("proml", seqs,
-                      verbose=verbose,
-                      force=force,
-                      args=args,
-                      usertree=usertree,
-                      saveOutput=saveOutput,
-                      bootiter=bootiter)
+def proml(seqs, verbose=True, force=False, args="y", usertree=None, saveOutput="", bootiter=1):
+    return align2tree(
+        "proml",
+        seqs,
+        verbose=verbose,
+        force=force,
+        args=args,
+        usertree=usertree,
+        saveOutput=saveOutput,
+        bootiter=bootiter,
+    )
 
 
-def dnaml(seqs, verbose=True, force = False, args="y",
-          usertree=None, saveOutput="", bootiter=1):
-    return align2tree("dnaml", seqs,
-                      verbose=verbose,
-                      force=force,
-                      args=args,
-                      usertree=usertree,
-                      saveOutput=saveOutput,
-                      bootiter=bootiter)
+def dnaml(seqs, verbose=True, force=False, args="y", usertree=None, saveOutput="", bootiter=1):
+    return align2tree(
+        "dnaml",
+        seqs,
+        verbose=verbose,
+        force=force,
+        args=args,
+        usertree=usertree,
+        saveOutput=saveOutput,
+        bootiter=bootiter,
+    )
 
 
-def dnapars(seqs, verbose=True, force = False, args="y",
-          usertree=None, saveOutput="", bootiter=1):
-    return align2tree("dnapars", seqs,
-                      verbose=verbose,
-                      force=force,
-                      args=args,
-                      usertree=usertree,
-                      saveOutput=saveOutput,
-                      bootiter=bootiter)
+def dnapars(seqs, verbose=True, force=False, args="y", usertree=None, saveOutput="", bootiter=1):
+    return align2tree(
+        "dnapars",
+        seqs,
+        verbose=verbose,
+        force=force,
+        args=args,
+        usertree=usertree,
+        saveOutput=saveOutput,
+        bootiter=bootiter,
+    )
 
 
-
-def proml_treelk(aln, tree, verbose=True, force = False, args="u\ny"):
+def proml_treelk(aln, tree, verbose=True, force=False, args="u\ny"):
     validate_seqs(aln)
     cwd = create_temp_dir()
 
@@ -542,7 +551,7 @@ def proml_treelk(aln, tree, verbose=True, force = False, args="u\ny"):
     return logl, tree
 
 
-def draw_tree(tree, plotfile, verbose=False, args=None, saveOutput = ""):
+def draw_tree(tree, plotfile, verbose=False, args=None, saveOutput=""):
     cwd = create_temp_dir()
 
     fontfile = os.popen("which font4", "r").read().rstrip()
@@ -565,17 +574,12 @@ def draw_tree(tree, plotfile, verbose=False, args=None, saveOutput = ""):
         cleanup_temp_dir(cwd)
 
 
-
-#=============================================================================
+# =============================================================================
 # distance estimation programs
 #
 
 
-
-
-
-
-def protdist(seqs, output=None, verbose=True, force = False, args=None):
+def protdist(seqs, output=None, verbose=True, force=False, args=None):
     if args == None:
         args = "y"
 
@@ -602,7 +606,7 @@ def protdist(seqs, output=None, verbose=True, force = False, args=None):
         return labels, mat
 
 
-def dnadist(seqs, output=None, verbose=True, force = False, args=None):
+def dnadist(seqs, output=None, verbose=True, force=False, args=None):
     if args == None:
         args = "y"
 
@@ -631,7 +635,7 @@ def dnadist(seqs, output=None, verbose=True, force = False, args=None):
 
 def correct_dist_matrix(distmat, maxdist=40, fardist=None):
     """remove -1 and extremely large distances (>maxdist), replace them with
-       fatdist (defaults to maximum distance in matrix)"""
+    fatdist (defaults to maximum distance in matrix)"""
 
     if fardist == None:
         fardist = 0
@@ -653,8 +657,7 @@ def correct_dist_matrix(distmat, maxdist=40, fardist=None):
     return distmat2
 
 
-def boot_neighbor(seqs, iters=100, seed=None, output=None,
-                 verbose=True, force=False):
+def boot_neighbor(seqs, iters=100, seed=None, output=None, verbose=True, force=False):
 
     if seed == None:
         seed = random.randInt(0, 1000) * 2 + 1
@@ -694,9 +697,7 @@ def boot_neighbor(seqs, iters=100, seed=None, output=None,
         return trees
 
 
-
-def boot_proml(seqs, iters = 100, seed = 1, jumble=5, output=None,
-               verbose=True, force = False):
+def boot_proml(seqs, iters=100, seed=1, jumble=5, output=None, verbose=True, force=False):
     validate_seqs(seqs)
     cwd = create_temp_dir()
     util.tic("bootProml on %d of length %d" % (len(seqs), len(seqs.values()[0])))
@@ -761,8 +762,6 @@ def consense(trees, counts=None, verbose=True, args="y"):
 
     cleanup_temp_dir(cwd)
     return tree
-
-
 
 
 # testing

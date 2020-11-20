@@ -2,47 +2,73 @@ import sys
 from treefix_tp.rasmus import treelib
 from treefix_tp.rasmus import util
 
-#=============================
+# =============================
 # input
 
-def add_common_options(parser,
-                       infiles=False ,reroot=False,
-                       stree=False, smap=False,
-                       treeext=False, alignext=False,
-                       clade=False):
+
+def add_common_options(
+    parser,
+    infiles=False,
+    reroot=False,
+    stree=False,
+    smap=False,
+    treeext=False,
+    alignext=False,
+    clade=False,
+):
     """Add common options to parser"""
 
     if infiles:
-        parser.add_option("-i", "--input", dest="input",
-                          metavar="<input file>",
-                          help="file containing a viral phylogeny")
+        parser.add_option(
+            "-i",
+            "--input",
+            dest="input",
+            metavar="<input file>",
+            help="file containing a viral phylogeny",
+        )
     if reroot:
-        parser.add_option("-r", "--reroot", dest="reroot",
-                          action="store_true", default=False,
-                          metavar="<reroot tree>",
-                          help="set to reroot the input tree")
+        parser.add_option(
+            "-r",
+            "--reroot",
+            dest="reroot",
+            action="store_true",
+            default=False,
+            metavar="<reroot tree>",
+            help="set to reroot the input tree",
+        )
     if stree:
-        parser.add_option("-s", "--stree", dest="stree",
-                          metavar="<species tree>",
-                          help="gene tree file in newick format")
+        parser.add_option(
+            "-s",
+            "--stree",
+            dest="stree",
+            metavar="<species tree>",
+            help="gene tree file in newick format",
+        )
     if smap:
-        parser.add_option("-S", "--smap", dest="smap",
-                          metavar="<strain map>",
-                          help="strain to host map")
+        parser.add_option(
+            "-S", "--smap", dest="smap", metavar="<strain map>", help="strain to host map"
+        )
     if treeext:
-        parser.add_option("-T","--treeext", dest="treeext",
-                          metavar="<tree file extension>",
-                          default=".tree",
-                          help="tree file extension (default: \".tree\")")
+        parser.add_option(
+            "-T",
+            "--treeext",
+            dest="treeext",
+            metavar="<tree file extension>",
+            default=".tree",
+            help='tree file extension (default: ".tree")',
+        )
     if alignext:
-        parser.add_option("-A","--alignext", dest="alignext",
-                          metavar="<alignment file extension>",
-                          default=".align",
-                          help="alignment file extension (default: \".align\")")
+        parser.add_option(
+            "-A",
+            "--alignext",
+            dest="alignext",
+            metavar="<alignment file extension>",
+            default=".align",
+            help='alignment file extension (default: ".align")',
+        )
     if clade:
-        parser.add_option("-c", "--clade", dest="clade",
-                          metavar="<clade file>",
-                          help="clade file")
+        parser.add_option("-c", "--clade", dest="clade", metavar="<clade file>", help="clade file")
+
 
 def move_option(parser, opt_str, opt_grp):
     """Move option 'opt_str' from 'parser' to 'opt_grp'"""
@@ -52,13 +78,14 @@ def move_option(parser, opt_str, opt_grp):
         parser.remove_option(opt_str)
         opt_grp.add_option(opt)
 
-def check_req_options(parser, options,
-                      species=True, clade=True):
+
+def check_req_options(parser, options, species=True, clade=True):
     """Check if required options are present"""
     if species and ((not options.stree) or (not options.smap)):
         parser.error("--stree and --smap are required")
     if clade and (not options.clade):
         parser.error("--clade is required")
+
 
 def get_input_files(parser, options, args):
     """Determine input files from options"""
@@ -80,8 +107,10 @@ def get_input_files(parser, options, args):
 
     return files
 
-#=============================
+
+# =============================
 # clades
+
 
 def get_clade(names, stree):
     """Get clade of given species"""
@@ -90,15 +119,17 @@ def get_clade(names, stree):
     assert sorted(names) == sorted(node.name for node in head.leaves())
     return [head] + head.descendants()
 
+
 def read_clades(filename, stree):
     """Read a clade file"""
 
     clades = {}
     for toks in util.DelimReader(filename):
-        name, sps = toks[0], toks[1].split(',')
+        name, sps = toks[0], toks[1].split(",")
         assert all(sp in stree.nodes and stree.nodes[sp].is_leaf() for sp in sps)
         clades[name] = get_clade(sps, stree)
     return clades
+
 
 def label_clades(gtree, recon, clades):
     """
@@ -109,7 +140,6 @@ def label_clades(gtree, recon, clades):
     nodes = {}
     for cname, clade in clades.iteritems():
         for node in gtree.preorder():
-            if (node.parent) and \
-               (recon[node] in clade) and (recon[node.parent] not in clade):
+            if (node.parent) and (recon[node] in clade) and (recon[node.parent] not in clade):
                 nodes[node] = cname
     return nodes

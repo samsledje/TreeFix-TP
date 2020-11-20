@@ -2,41 +2,33 @@
 # Python module for RAxML library
 #
 
-import sys,os
+import sys, os
+import treefix_tp.pyRAxML.raxml
+import treefix_tp.rasmus
+import treefix_tp.compbio
+from treefix_tp.rasmus import treelib
+from scipy.stats import norm
 
-# import RAxML SWIG module
-from treefix_tp.pyRAxML import raxml
+sf = norm.sf
 
-# load rasmus libraries if available
-def load_deps(dirname="deps"):
-    sys.path.append(os.path.realpath(
-        os.path.join(os.path.dirname(__file__), dirname)))
+# =============================================================================
 
-# normal distribution
-try:
-    # scipy libraries
-    from scipy.stats import norm
-    sf = norm.sf
-except ImportError:
-    # use approximation from rasmus stats library
-    from rasmus import stats
-    sf = lambda x: 1-stats.normalCdf(x, (0,1))
-
-#=============================================================================
 
 class RAxML:
     """Wrapper for RAxML functions"""
 
-    #=========================================
+    # =========================================
     # constructors/destructors
 
     def __init__(self):
-        self.rooted = False # RAxML uses unrooted trees
+        self.rooted = False  # RAxML uses unrooted trees
         self.adef = raxml.new_analdef()
         raxml.init_adef(self.adef)
         self.tr = raxml.new_tree()
         self.optimal = False
-        self.best_LH = None; self.weight_sum = None; self.best_vector = None
+        self.best_LH = None
+        self.weight_sum = None
+        self.best_vector = None
 
     def __del__(self):
         raxml.delete_analdef(self.adef)
@@ -44,15 +36,16 @@ class RAxML:
         if self.best_vector is not None:
             raxml.delete_best_vector(self.best_vector)
 
-    #=========================================
+    # =========================================
     # utilities
 
     def read_tree(self, tree):
         """Read treelib tree to raxml tr"""
-        r,w = os.pipe()
-        fr,fw = os.fdopen(r, 'r'), os.fdopen(w, 'w')
+        r, w = os.pipe()
+        fr, fw = os.fdopen(r, "r"), os.fdopen(w, "w")
 
-        tree.write(fw, oneline=True); fw.write('\n')
+        tree.write(fw, oneline=True)
+        fw.write("\n")
         fw.close()
 
         raxml.read_tree(fr, self.tr, self.adef)
@@ -64,16 +57,15 @@ class RAxML:
         tree = treelib.parse_newick(treestr)
         treelib.draw_tree(treelib.unroot(tree), *args, **kargs)
 
-    #=========================================
+    # =========================================
     # model optimization
 
     def optimize_model(self, treefile, seqfile, extra="-m GTRGAMMA -n test"):
         """Optimizes the RAxML model"""
 
         # initialize parameters based on input
-        cmd = "raxmlHPC -t %s -s %s %s" %\
-              (treefile, seqfile, extra)
-        raxml.init_program(self.adef, self.tr, cmd.split(' '))
+        cmd = "raxmlHPC -t %s -s %s %s" % (treefile, seqfile, extra)
+        raxml.init_program(self.adef, self.tr, cmd.split(" "))
 
         # optimize
         raxml.optimize_model(self.adef, self.tr)
@@ -86,7 +78,7 @@ class RAxML:
         # set flags
         self.optimal = True
 
-    #=========================================
+    # =========================================
     # test statistics
 
     def compute_lik_test(self, tree, test="SH", alternative=None):
@@ -107,8 +99,9 @@ class RAxML:
                 raise Exception("The model is not optimized: call optimize_model.\n")
 
             self.read_tree(tree)
-            zscore, Dlnl = raxml.compute_LH(self.adef, self.tr,
-                                            self.best_LH, self.weight_sum, self.best_vector)
+            zscore, Dlnl = raxml.compute_LH(
+                self.adef, self.tr, self.best_LH, self.weight_sum, self.best_vector
+            )
 
             # note that RAxML uses a one-sided comparison with a two-sided threshold
             # that is, it determines whether z>z_thr, where z_thr corresponds to a significance level of alpha/2

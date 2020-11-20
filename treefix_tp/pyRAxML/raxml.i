@@ -3,8 +3,8 @@
 
 %{
 #define SWIG_FILE_WITH_INIT
-#include "../../src/raxml/axml.h"
-#include "../../src/raxml/globalVariables.h"
+#include "src/axml.h"
+#include "src/globalVariables.h"
 %}
 
 %include typemaps.i

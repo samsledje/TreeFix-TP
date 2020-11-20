@@ -17,12 +17,12 @@ import treefix_tp.rasmus.util as util
 import treefix_tp.rasmus.textdraw
 import treefix_tp.rasmus.treelib_parser
 
-#============================================================================
+# ============================================================================
 # Tree data structures
 #
 
 
-class TreeNode (object):
+class TreeNode(object):
     """A class for nodes in a rooted Tree
 
     Contains fields for branch length 'dist' and custom data 'data'
@@ -72,6 +72,7 @@ class TreeNode (object):
                 leaves.append(node)
             for child in node.children:
                 walk(child)
+
         walk(self)
 
         return leaves
@@ -88,6 +89,7 @@ class TreeNode (object):
             if node.parent:
                 ancestors.append(node.parent)
                 walk(node.parent)
+
         walk(self)
 
         return ancestors
@@ -104,6 +106,7 @@ class TreeNode (object):
             for child in node.children:
                 descendants.append(child)
                 walk(child)
+
         walk(self)
 
         return descendants
@@ -121,7 +124,7 @@ class TreeNode (object):
         return "<node %s>" % self.name
 
 
-class BranchData (object):
+class BranchData(object):
     """A class for managing branch specific data for a Tree
 
     By default, this class implements bootstrap data for TreeNode's.
@@ -164,15 +167,14 @@ class BranchData (object):
             return {}
 
 
-class Tree (object):
+class Tree(object):
     """
     Basic rooted tree
 
     Well suited for phylogenetic trees
     """
 
-    def __init__(self, nextname=1, branch_data=BranchData(),
-                 name=None):
+    def __init__(self, nextname=1, branch_data=BranchData(), name=None):
         self.nodes = {}
         self.root = None
         self.nextname = nextname
@@ -183,8 +185,7 @@ class Tree (object):
 
     def __repr__(self):
         """Returns a representation of the tree"""
-        return "<tree %s>" % (self.name if self.name is not None else
-                              hex(id(self)))
+        return "<tree %s>" % (self.name if self.name is not None else hex(id(self)))
 
     def copy(self, copyData=True):
         """Returns a copy of the tree"""
@@ -200,6 +201,7 @@ class Tree (object):
                 tree.nodes[node.name] = node
                 for child in node.children:
                     walk(child)
+
             walk(tree.root)
 
         # copy extra data
@@ -209,7 +211,7 @@ class Tree (object):
 
         return tree
 
-    #=========================================
+    # =========================================
     # iterators
 
     def __iter__(self):
@@ -296,7 +298,7 @@ class Tree (object):
             else:
                 stack.pop()
 
-    #=============================
+    # =============================
     # structure functions
 
     def make_root(self, name=None):
@@ -308,7 +310,7 @@ class Tree (object):
 
     def add(self, node):
         """Add a node to the tree
-           Does not add node to any specific location (use add_child instead).
+        Does not add node to any specific location (use add_child instead).
         """
         self.nodes[node.name] = node
         return node
@@ -349,8 +351,7 @@ class Tree (object):
         (use remove instead).
         """
 
-        assert parent != child and child.parent == parent, (
-            parent.name, child.name)
+        assert parent != child and child.parent == parent, (parent.name, child.name)
         parent.children.remove(child)
         child.parent = None
 
@@ -366,6 +367,7 @@ class Tree (object):
                 del self.nodes[node.name]
             for child in node.children:
                 walk(child)
+
         walk(node)
 
         if node.parent:
@@ -412,7 +414,7 @@ class Tree (object):
 
     def merge_names(self, tree2):
         """Merge the node names from tree2 into this tree.
-           Change any names that conflict"""
+        Change any names that conflict"""
 
         for name in tree2.nodes:
             if name in self.nodes:
@@ -459,7 +461,7 @@ class Tree (object):
         """Returns the descendant names in order"""
         return node.descendant_names()
 
-    #===============================
+    # ===============================
     # data functions
 
     def has_data(self, dataname):
@@ -495,7 +497,7 @@ class Tree (object):
                     if key in node.data:
                         del node.data[key]
 
-    #======================================================================
+    # ======================================================================
     # branch data functions
     # forward branch data calles to branch data manager
 
@@ -515,7 +517,7 @@ class Tree (object):
         """Merges the branch data from two neighboring branches into one"""
         return self.branch_data.merge_branch_data(data1, data2)
 
-    #=======================================================================
+    # =======================================================================
     # input and output
 
     def read_data(self, node, data, namefunc=lambda name: name):
@@ -548,14 +550,11 @@ class Tree (object):
             if data:
                 node.name = namefunc(data)
 
-    def write_data(self, node, writeDist=True,
-                   namefunc=lambda name: name):
+    def write_data(self, node, writeDist=True, namefunc=lambda name: name):
         """Default data writer: writes optional bootstrap and branch length"""
 
         string = ""
-        if "boot" in node.data and \
-           not node.is_leaf() and \
-           self.root != node:
+        if "boot" in node.data and not node.is_leaf() and self.root != node:
             if isinstance(node.data["boot"], int):
                 string += "%d" % node.data["boot"]
             else:
@@ -577,40 +576,47 @@ class Tree (object):
         """
         read_tree(filename, read_data=readData, tree=self, namefunc=namefunc)
 
-    def write_newick(self, out=sys.stdout, writeData=None, oneline=False,
-                     rootData=False, namefunc=lambda name: name):
+    def write_newick(
+        self,
+        out=sys.stdout,
+        writeData=None,
+        oneline=False,
+        rootData=False,
+        namefunc=lambda name: name,
+    ):
         """Write the tree in newick notation"""
-        write_newick(self, util.open_stream(out, "w"),
-                     write_data=writeData, oneline=oneline,
-                     root_data=rootData, namefunc=namefunc)
+        write_newick(
+            self,
+            util.open_stream(out, "w"),
+            write_data=writeData,
+            oneline=oneline,
+            root_data=rootData,
+            namefunc=namefunc,
+        )
 
     write = write_newick
 
-    def get_one_line_newick(self, root_data=False, writeData=None,
-                            namefunc=lambda name: name):
+    def get_one_line_newick(self, root_data=False, writeData=None, namefunc=lambda name: name):
         """Get a presentation of the tree in a oneline string newick format"""
         stream = StringIO.StringIO()
-        self.write(stream, oneline=True,
-                   writeData=writeData, rootData=root_data,
-                   namefunc=namefunc)
+        self.write(stream, oneline=True, writeData=writeData, rootData=root_data, namefunc=namefunc)
         return stream.getvalue()
 
 
-#============================================================================
+# ============================================================================
 # Input/Output functions
+
 
 def read_tree(infile, read_data=None, tree=None, namefunc=lambda name: name):
     """Read a tree from a file stream"""
     infile = util.open_stream(infile)
-    return parse_newick(infile, read_data=read_data, tree=tree,
-                        namefunc=namefunc)
+    return parse_newick(infile, read_data=read_data, tree=tree, namefunc=namefunc)
 
 
 def read_newick(infile, read_data=None, tree=None, namefunc=lambda name: name):
     """Read a tree from a file stream"""
     infile = util.open_stream(infile)
-    return parse_newick(infile, read_data=read_data, tree=tree,
-                        namefunc=namefunc)
+    return parse_newick(infile, read_data=read_data, tree=tree, namefunc=namefunc)
 
 
 def iter_trees(treefile, read_data=None, namefunc=lambda name: name):
@@ -685,8 +691,7 @@ def tokenize_newick(infile):
         word[:] = []
 
 
-def parse_newick(infile, read_data=None, tree=None,
-                 namefunc=lambda name: name):
+def parse_newick(infile, read_data=None, tree=None, namefunc=lambda name: name):
     """
     Parse a newick string or stream
 
@@ -718,10 +723,10 @@ def parse_newick(infile, read_data=None, tree=None,
     try:
         while True:
             prev_token = token
-            token = tokens.next()
+            token = next(tokens)
             empty = False
 
-            if token == '(':  # new branchset
+            if token == "(":  # new branchset
                 if data:
                     read_data(node, "".join(data), namefunc)
                     data = []
@@ -732,7 +737,7 @@ def parse_newick(infile, read_data=None, tree=None,
                 ancestors.append(node)
                 node = child
 
-            elif token == ',':  # another branch
+            elif token == ",":  # another branch
                 if data:
                     read_data(node, "".join(data), namefunc)
                     data = []
@@ -744,26 +749,26 @@ def parse_newick(infile, read_data=None, tree=None,
                 parent.children.append(child)
                 node = child
 
-            elif token == ')':  # optional name next
+            elif token == ")":  # optional name next
                 if data:
                     read_data(node, "".join(data), namefunc)
                     data = []
                 node = ancestors.pop()
 
-            elif token == ':':  # optional length next
+            elif token == ":":  # optional length next
                 data.append(token)
 
-            elif token == ';':  # end of tree
+            elif token == ";":  # end of tree
                 if data:
                     read_data(node, "".join(data), namefunc)
                     data = []
                 break
 
             else:
-                if prev_token in '(,':
+                if prev_token in "(,":
                     node.name = namefunc(token)
 
-                elif prev_token in '):':
+                elif prev_token in "):":
                     data.append(token)
 
                 else:
@@ -791,17 +796,36 @@ def parse_newick(infile, read_data=None, tree=None,
     return tree
 
 
-def write_newick(tree, out=sys.stdout, write_data=None, oneline=False,
-                 root_data=False, namefunc=lambda name: name):
+def write_newick(
+    tree,
+    out=sys.stdout,
+    write_data=None,
+    oneline=False,
+    root_data=False,
+    namefunc=lambda name: name,
+):
     """Write the tree in newick notation"""
-    write_newick_node(tree, tree.root, util.open_stream(out, "w"),
-                      write_data=write_data, oneline=oneline,
-                      root_data=root_data, namefunc=namefunc)
+    write_newick_node(
+        tree,
+        tree.root,
+        util.open_stream(out, "w"),
+        write_data=write_data,
+        oneline=oneline,
+        root_data=root_data,
+        namefunc=namefunc,
+    )
 
 
-def write_newick_node(tree, node, out=sys.stdout,
-                      depth=0, write_data=None, oneline=False,
-                      root_data=False, namefunc=lambda name: name):
+def write_newick_node(
+    tree,
+    node,
+    out=sys.stdout,
+    depth=0,
+    write_data=None,
+    oneline=False,
+    root_data=False,
+    namefunc=lambda name: name,
+):
     """Write the node in newick format to the out file stream"""
 
     # default data writer
@@ -822,16 +846,28 @@ def write_newick_node(tree, node, out=sys.stdout,
         else:
             out.write("(\n")
         for child in node.children[:-1]:
-            write_newick_node(tree, child, out, depth+1,
-                              write_data=write_data, oneline=oneline,
-                              namefunc=namefunc)
+            write_newick_node(
+                tree,
+                child,
+                out,
+                depth + 1,
+                write_data=write_data,
+                oneline=oneline,
+                namefunc=namefunc,
+            )
             if oneline:
                 out.write(",")
             else:
                 out.write(",\n")
-        write_newick_node(tree, node.children[-1], out, depth+1,
-                          write_data=write_data, oneline=oneline,
-                          namefunc=namefunc)
+        write_newick_node(
+            tree,
+            node.children[-1],
+            out,
+            depth + 1,
+            write_data=write_data,
+            oneline=oneline,
+            namefunc=namefunc,
+        )
         if oneline:
             out.write(")")
         else:
@@ -849,8 +885,9 @@ def write_newick_node(tree, node, out=sys.stdout,
         out.write(write_data(node))
 
 
-#=============================================================================
+# =============================================================================
 # alternate reading functions
+
 
 def read_newick_ply(filename, readData=None, tree=None):
     """read with PLY"""
@@ -895,6 +932,7 @@ def read_newick_ply(filename, readData=None, tree=None):
             if ret:
                 tree.add_child(node, ret)
         return node
+
     tree.root = walk(expr)
     tree.nodes[tree.root.name] = tree.root
 
@@ -996,7 +1034,7 @@ def read_newick_recursive(filename, tree=None):
                 node.dist = read_dist()
             return node
         else:
-            #word, char = read_until(":),")
+            # word, char = read_until(":),")
             word, char = read_name()
             word = char1 + word.rstrip()
 
@@ -1100,6 +1138,7 @@ def write_parent_tree(treefile, tree, labels=None):
         node.recurse(walk)
         if not node.is_leaf():
             ids[node] = len(ids)
+
     walk(tree.root)
 
     # build ptree array
@@ -1113,8 +1152,9 @@ def write_parent_tree(treefile, tree, labels=None):
     util.write_list(treefile, ptree)
 
 
-#=============================================================================
+# =============================================================================
 # NHX format
+
 
 def parse_nhx_comment(comment):
     """Parse a NHX comment"""
@@ -1125,8 +1165,7 @@ def parse_nhx_comment(comment):
 
 def format_nhx_comment(data):
     """Format a NHX comment"""
-    return "[&&NHX:" + ":".join("%s=%s" % (k, v)
-                                for k, v in data.iteritems()) + "]"
+    return "[&&NHX:" + ":".join("%s=%s" % (k, v) for k, v in data.iteritems()) + "]"
 
 
 def parse_nhx_data(text):
@@ -1137,7 +1176,7 @@ def parse_nhx_data(text):
         data = {}
         i = text.find("[")
         j = text.find("]")
-        comment = text[i+1:j]
+        comment = text[i + 1 : j]
         text = text[:i]
 
         if comment.startswith("&&NHX:"):
@@ -1164,8 +1203,9 @@ def write_nhx_data(node):
     return text
 
 
-#============================================================================
+# ============================================================================
 # Misc. functions for manipulating trees
+
 
 def assert_tree(tree):
     """Assert that the tree data structure is internally consistent"""
@@ -1181,13 +1221,12 @@ def assert_tree(tree):
         for child in node.children:
             assert child.parent == node, (tree.name, node.name, child.name)
         node.recurse(walk)
+
     walk(tree.root)
     assert tree.root.parent is None, (tree.name, tree.root.name)
-    assert len(tree.nodes) == len(visited), (
-        "%d %d" % (len(tree.nodes), len(visited)))
+    assert len(tree.nodes) == len(visited), "%d %d" % (len(tree.nodes), len(visited))
     assert tree.root.parent is None
-    assert len(tree.nodes) == len(visited), (
-        "%d %d" % (len(tree.nodes), len(visited)))
+    assert len(tree.nodes) == len(visited), "%d %d" % (len(tree.nodes), len(visited))
 
 
 def is_binary(tree):
@@ -1237,8 +1276,7 @@ def find_dist(tree, name1, name2):
     """Returns the branch distance between two nodes in a tree"""
 
     if name1 not in tree.nodes or name2 not in tree.nodes:
-        raise Exception("nodes '%s' and '%s' are not in tree" %
-                        (name1, name2))
+        raise Exception("nodes '%s' and '%s' are not in tree" % (name1, name2))
 
     # find root path for node1
     node1 = tree.nodes[name1]
@@ -1260,9 +1298,9 @@ def find_dist(tree, name1, name2):
         i += 1
 
     dist = 0
-    for j in range(i, len(path1)+1):
+    for j in range(i, len(path1) + 1):
         dist += path1[-j].dist
-    for j in range(i, len(path2)+1):
+    for j in range(i, len(path2) + 1):
         dist += path2[-j].dist
 
     return dist
@@ -1309,6 +1347,7 @@ def subtree(tree, node):
     def walk(node):
         tree2.add(node)
         node.recurse(walk)
+
     walk(tree2.root)
 
     return tree2
@@ -1316,7 +1355,7 @@ def subtree(tree, node):
 
 def max_disjoint_subtrees(tree, subroots):
     """Returns a list of rooted subtrees with atmost one node from
-       the list 'subroots'
+    the list 'subroots'
     """
 
     marks = {}
@@ -1334,10 +1373,10 @@ def max_disjoint_subtrees(tree, subroots):
 
     def walk(node):
         marks.setdefault(node, [])
-        if (len(marks[node]) < 2 and
-               (not node.parent or len(marks[node.parent]) >= 2)):
+        if len(marks[node]) < 2 and (not node.parent or len(marks[node.parent]) >= 2):
             subroots2.append(node)
         node.recurse(walk)
+
     walk(tree.root)
 
     return subroots2
@@ -1378,6 +1417,7 @@ def graph2tree(mat, root, closedset=None):
                 child_node.dist = mat[name][child]
                 tree.add_child(node, child_node)
         return node
+
     tree.root = walk(root)
 
     tree.nextname = max(name for name in tree.nodes if isinstance(name, int))
@@ -1393,9 +1433,7 @@ def remove_single_children(tree, simplify_root=True):
     """
 
     # find single children
-    removed = [node
-               for node in tree
-               if len(node.children) == 1 and node.parent]
+    removed = [node for node in tree if len(node.children) == 1 and node.parent]
 
     # actually remove children
     for node in removed:
@@ -1451,11 +1489,11 @@ def remove_exposed_internal_nodes(tree, leaves=None):
 
         if node.is_leaf() and node not in stay:
             tree.remove(node)
+
     walk(tree.root)
 
 
-def subtree_by_leaves(tree, leaves=None, keep_single=False,
-                      simplify_root=True):
+def subtree_by_leaves(tree, leaves=None, keep_single=False, simplify_root=True):
     """
     Remove any leaf not in leaves set
 
@@ -1475,6 +1513,7 @@ def subtree_by_leaves(tree, leaves=None, keep_single=False,
 
         if node.is_leaf() and node not in stay:
             tree.remove(node)
+
     if len(stay) == 0:
         tree.clear()
     else:
@@ -1491,8 +1530,7 @@ def subtree_by_leaf_names(tree, leaf_names, keep_single=False, newCopy=False):
 
     if newCopy:
         tree = tree.copy()
-    return subtree_by_leaves(tree, [tree.nodes[x] for x in leaf_names],
-                             keep_single=keep_single)
+    return subtree_by_leaves(tree, [tree.nodes[x] for x in leaf_names], keep_single=keep_single)
 
 
 def reorder_tree(tree, tree2, root=True, leafmap=lambda leaf: leaf.name):
@@ -1500,8 +1538,7 @@ def reorder_tree(tree, tree2, root=True, leafmap=lambda leaf: leaf.name):
 
     if root:
         # reroot tree to match tree2
-        root_branches = [set(map(leafmap, n.leaves()))
-                         for n in tree2.root.children]
+        root_branches = [set(map(leafmap, n.leaves())) for n in tree2.root.children]
 
         def walk(node):
             if node.is_leaf():
@@ -1520,6 +1557,7 @@ def reorder_tree(tree, tree2, root=True, leafmap=lambda leaf: leaf.name):
                 return None
 
             return leaves
+
         walk(tree.root)
 
     # reorder tree to match tree2
@@ -1578,9 +1616,10 @@ def set_tree_topology(tree, tree2):
     tree.root = nodes[tree2.root.name]
 
 
-#=============================================================================
+# =============================================================================
 # Rerooting functions
 #
+
 
 def is_rooted(tree):
     """Returns True if tree is rooted"""
@@ -1622,9 +1661,11 @@ def reroot(tree, newroot, onBranch=True, newCopy=True, keepName=False):
         tree = tree.copy()
 
     # handle trivial case
-    if ((not onBranch and tree.root.name == newroot) or
-        (onBranch and newroot in [x.name for x in tree.root.children] and
-         len(tree.root.children) == 2)):
+    if (not onBranch and tree.root.name == newroot) or (
+        onBranch
+        and newroot in [x.name for x in tree.root.children]
+        and len(tree.root.children) == 2
+    ):
         return tree
     assert not onBranch or newroot != tree.root.name, "No branch specified"
 
@@ -1705,8 +1746,7 @@ def midpoint_root(tree):
         if node.is_leaf():
             depths[node] = (0.0, node)
         else:
-            depths[node] = max((c.dist + depths[c][0], depths[c][1])
-                               for c in node.children)
+            depths[node] = max((c.dist + depths[c][0], depths[c][1]) for c in node.children)
 
     # find maximum path
     dists = []
@@ -1714,11 +1754,10 @@ def midpoint_root(tree):
         if node.is_leaf():
             continue
         assert len(node.children) != 1
-        tmp = sorted([(c.dist + depths[c][0], depths[c][1], c)
-                      for c in node.children])
-        dists.append((tmp[-1][0] + tmp[-2][0], node,
-                      tmp[-1][2], tmp[-1][1],
-                      tmp[-2][2], tmp[-2][1]))
+        tmp = sorted([(c.dist + depths[c][0], depths[c][1], c) for c in node.children])
+        dists.append(
+            (tmp[-1][0] + tmp[-2][0], node, tmp[-1][2], tmp[-1][1], tmp[-2][2], tmp[-2][1])
+        )
 
     maxdist, top, child1, leaf1, child2, leaf2 = max(dists)
     middist = maxdist / 2.0
@@ -1749,13 +1788,13 @@ def midpoint_root(tree):
     raise AssertionError("Could not find branch with midpoint")
 
 
-
-#=============================================================================
+# =============================================================================
 # ages (previous known as timestamps)
 #
 # Methods for calculating the ages (timestamps) of nodes in the tree given
 # the branch lengths.
 #
+
 
 def get_tree_ages(tree, root=None, leaves=None, times=None, esp=0.001):
     """
@@ -1781,14 +1820,17 @@ def get_tree_ages(tree, root=None, leaves=None, times=None, esp=0.001):
 
                 # ensure branch lengths are ultrametrix
                 if (t2 is not None) and (esp is not None):
-                    assert abs(t - t2)/t < esp, (node.name, t, t2)
+                    assert abs(t - t2) / t < esp, (node.name, t, t2)
                 t2 = t
 
         times[node] = t
         return t + node.dist
+
     walk(root)
 
     return times
+
+
 get_tree_timestamps = get_tree_ages  # backwards compatiability
 
 
@@ -1802,6 +1844,8 @@ def set_dists_from_ages(tree, times):
             node.dist = times[node.parent] - times[node]
         else:
             node.dist = 0.0
+
+
 set_dists_from_timestamps = set_dists_from_ages  # backwards compatiability
 
 
@@ -1810,19 +1854,23 @@ def check_ages(tree, times):
 
     for node in tree:
         if node.parent:
-            if (times[node.parent] - times[node] < 0.0 or
-                abs(((times[node.parent] - times[node]) -
-                    node.dist)/node.dist) > .001):
+            if (
+                times[node.parent] - times[node] < 0.0
+                or abs(((times[node.parent] - times[node]) - node.dist) / node.dist) > 0.001
+            ):
                 draw_tree_names(tree, maxlen=7, minlen=7)
                 util.printcols([(a.name, b) for a, b in times.items()])
                 print("")
                 print(node.name, node.dist, times[node.parent] - times[node])
                 raise Exception("negative time span")
+
+
 check_timestamps = check_ages  # backwards compatiability
 
 
-#=============================================================================
+# =============================================================================
 # parent tables
+
 
 def tree2parent_table(tree, data_cols=[]):
     """Converts tree to a parent table
@@ -2022,8 +2070,9 @@ def read_parent_table(filename):
     return ptable
 
 
-#=============================================================================
+# =============================================================================
 # conversion to other formats
+
 
 def make_ptree(tree):
     """Make parent tree array from tree"""
@@ -2036,6 +2085,7 @@ def make_ptree(tree):
         for child in node.children:
             walk(child)
         nodes.append(node)
+
     walk(tree.root)
 
     def leafsort(a, b):
@@ -2065,11 +2115,11 @@ def make_ptree(tree):
     return ptree, nodes, nodelookup
 
 
-#=============================================================================
+# =============================================================================
 # Tree visualization
 
-def layout_tree(tree, xscale, yscale, minlen=-util.INF, maxlen=util.INF,
-                rootx=0, rooty=0):
+
+def layout_tree(tree, xscale, yscale, minlen=-util.INF, maxlen=util.INF, rootx=0, rooty=0):
     """\
     Determines the x and y coordinates for every branch in the tree.
 
@@ -2087,8 +2137,8 @@ def layout_tree(tree, xscale, yscale, minlen=-util.INF, maxlen=util.INF,
 
     # first determine sizes and nodepts
     coords = {}
-    sizes = {}          # number of descendants (leaves have size 1)
-    nodept = {}         # distance between node y-coord and top bracket y-coord
+    sizes = {}  # number of descendants (leaves have size 1)
+    nodept = {}  # distance between node y-coord and top bracket y-coord
 
     def walk(node):
         # calculate new y-coordinate for node
@@ -2103,16 +2153,16 @@ def layout_tree(tree, xscale, yscale, minlen=-util.INF, maxlen=util.INF,
             nodept[node] = yscale - 1
         else:
             top = nodept[node.children[0]]
-            bot = ((sizes[node] - sizes[node.children[-1]]) * yscale +
-                   nodept[node.children[-1]])
+            bot = (sizes[node] - sizes[node.children[-1]]) * yscale + nodept[node.children[-1]]
             nodept[node] = (top + bot) / 2.0
 
         return sizes[node]
+
     walk(tree.root)
 
     # determine x, y coordinates
     def walk2(node, x, y):
-        xchildren = x+min(max(node.dist*xscale, minlen), maxlen)
+        xchildren = x + min(max(node.dist * xscale, minlen), maxlen)
         coords[node] = [xchildren, y + nodept[node]]
 
         if not node.is_leaf():
@@ -2120,13 +2170,13 @@ def layout_tree(tree, xscale, yscale, minlen=-util.INF, maxlen=util.INF,
             for child in node.children:
                 walk2(child, xchildren, ychild)
                 ychild += sizes[child] * yscale
+
     walk2(tree.root, rootx, rooty)
 
     return coords
 
 
-def layout_tree_hierarchical(tree, xscale, yscale,
-                             rootx=0, rooty=0):
+def layout_tree_hierarchical(tree, xscale, yscale, rootx=0, rooty=0):
     """\
     Determines the x and y coordinates for every branch in the tree.
 
@@ -2144,9 +2194,9 @@ def layout_tree_hierarchical(tree, xscale, yscale,
 
     # first determine sizes and nodepts
     coords = {}
-    sizes = {}          # number of descendants (leaves have size 1)
-    depth = {}          # how deep in tree is node
-    nodept = {}         # distance between node y-coord and top bracket y-coord
+    sizes = {}  # number of descendants (leaves have size 1)
+    depth = {}  # how deep in tree is node
+    nodept = {}  # distance between node y-coord and top bracket y-coord
 
     def walk(node):
         # calculate new y-coordinate for node
@@ -2162,12 +2212,12 @@ def layout_tree_hierarchical(tree, xscale, yscale,
             depth[node] = 0
         else:
             top = nodept[node.children[0]]
-            bot = ((sizes[node] - sizes[node.children[-1]]) * yscale +
-                   nodept[node.children[-1]])
+            bot = (sizes[node] - sizes[node.children[-1]]) * yscale + nodept[node.children[-1]]
             nodept[node] = (top + bot) / 2.0
             depth[node] = max(depth[child] + 1 for child in node.children)
 
         return sizes[node]
+
     walk(tree.root)
 
     # determine x, y coordinates
@@ -2182,13 +2232,13 @@ def layout_tree_hierarchical(tree, xscale, yscale,
             for child in node.children:
                 walk2(child, x, ychild)
                 ychild += sizes[child] * yscale
+
     walk2(tree.root, rootx, rooty)
 
     return coords
 
 
-def layout_tree_vertical(layout, offset=None, root=0, leaves=None,
-                         ydir=-1):
+def layout_tree_vertical(layout, offset=None, root=0, leaves=None, ydir=-1):
     """
     Make layout vertical
     """
@@ -2196,26 +2246,29 @@ def layout_tree_vertical(layout, offset=None, root=0, leaves=None,
         if leaves is not None:
             for node in layout:
                 if node.is_leaf():
-                    offset = leaves - ydir*layout[node][0]
+                    offset = leaves - ydir * layout[node][0]
                     break
         else:
             for node in layout:
                 if node.parent is None:
-                    offset = root - ydir*layout[node][0]
+                    offset = root - ydir * layout[node][0]
                     break
 
     for node, (x, y) in layout.iteritems():
-        layout[node] = [y, offset + ydir*x]
+        layout[node] = [y, offset + ydir * x]
     return layout
 
 
-#=============================================================================
+# =============================================================================
 # Tree color map
+
 
 def tree_color_map(leafmap=lambda x: (0, 0, 0)):
     """Returns a simple color mixing colormap"""
+
     def null_func(tree):
         pass
+
     if leafmap is None:
         return null_func
 
@@ -2229,7 +2282,9 @@ def tree_color_map(leafmap=lambda x: (0, 0, 0)):
                     walk(child)
                     colors.append(child.color)
                 node.color = color_mix(colors)
+
         walk(tree.root)
+
     return func
 
 
@@ -2249,7 +2304,7 @@ def color_mix(colors):
 def make_expr_mapping(maps, default_color=(0, 0, 0)):
     """Returns a function that maps strings matching an expression to a value
 
-       maps -- a list of pairs (expr, value)
+    maps -- a list of pairs (expr, value)
     """
 
     # find exact matches and expressions
@@ -2280,6 +2335,7 @@ def make_expr_mapping(maps, default_color=(0, 0, 0)):
                     return val
 
         raise Exception("Cannot map key '%s' to any value" % key)
+
     return mapping
 
 
@@ -2301,12 +2357,24 @@ def read_tree_color_map(filename):
     return tree_color_map(leafmap)
 
 
-#=========================================================================
+# =========================================================================
 # Draw Tree ASCII art
 
-def draw_tree(tree, labels={}, scale=40, spacing=2, out=sys.stdout,
-              canvas=None, x=0, y=0, display=True, labelOffset=-1,
-              minlen=1, maxlen=10000):
+
+def draw_tree(
+    tree,
+    labels={},
+    scale=40,
+    spacing=2,
+    out=sys.stdout,
+    canvas=None,
+    x=0,
+    y=0,
+    display=True,
+    labelOffset=-1,
+    minlen=1,
+    maxlen=10000,
+):
     """
     Print a ASCII Art representation of the tree
     """
@@ -2330,10 +2398,10 @@ def draw_tree(tree, labels={}, scale=40, spacing=2, out=sys.stdout,
             sizes[node] += walk(child)
         if not node.is_leaf():
             top = nodept[node.children[0]]
-            bot = ((sizes[node] - sizes[node.children[-1]]) * yscale +
-                   nodept[node.children[-1]])
+            bot = (sizes[node] - sizes[node.children[-1]]) * yscale + nodept[node.children[-1]]
             nodept[node] = (top + bot) / 2
         return sizes[node]
+
     walk(tree.root)
 
     def walk2(node, x, y):
@@ -2341,38 +2409,40 @@ def draw_tree(tree, labels={}, scale=40, spacing=2, out=sys.stdout,
         xchildren = int(x + min(max(node.dist * xscale, minlen), maxlen))
 
         # draw branch
-        canvas.line(x, y+nodept[node], xchildren, y+nodept[node], '-')
+        canvas.line(x, y + nodept[node], xchildren, y + nodept[node], "-")
         if node.name in labels:
             branchlen = xchildren - x
             lines = str(labels[node.name]).split("\n")
             labelwidth = max(map(len, lines))
 
-            labellen = min(labelwidth,
-                           max(int(branchlen - 1), 0))
-            canvas.text(x + 1 + (branchlen - labellen)/2.,
-                        y+nodept[node]+labelOffset,
-                        labels[node.name], width=labellen)
+            labellen = min(labelwidth, max(int(branchlen - 1), 0))
+            canvas.text(
+                x + 1 + (branchlen - labellen) / 2.0,
+                y + nodept[node] + labelOffset,
+                labels[node.name],
+                width=labellen,
+            )
 
         if node.is_leaf():
             canvas.text(xchildren + 1, y + yscale - 1, str(node.name))
         else:
             top = y + nodept[node.children[0]]
-            bot = (y + (sizes[node]-sizes[node.children[-1]]) * yscale +
-                   nodept[node.children[-1]])
+            bot = y + (sizes[node] - sizes[node.children[-1]]) * yscale + nodept[node.children[-1]]
 
             # draw children
-            canvas.line(xchildren, top, xchildren, bot, '|')
+            canvas.line(xchildren, top, xchildren, bot, "|")
 
             ychild = y
             for child in node.children:
                 walk2(child, xchildren, ychild)
                 ychild += sizes[child] * yscale
 
-            canvas.set(xchildren, y+nodept[node], '+')
-            canvas.set(xchildren, top, '/')
-            canvas.set(xchildren, bot, '\\')
-        canvas.set(x, y+nodept[node], '+')
-    walk2(tree.root, x+0, 0)
+            canvas.set(xchildren, y + nodept[node], "+")
+            canvas.set(xchildren, top, "/")
+            canvas.set(xchildren, bot, "\\")
+        canvas.set(x, y + nodept[node], "+")
+
+    walk2(tree.root, x + 0, 0)
 
     if display:
         canvas.display(out)
@@ -2399,8 +2469,7 @@ def draw_tree_boot_lens(tree, *args, **kargs):
             if isinstance(node.data["boot"], int):
                 labels[node.name] = "(%d) %f" % (node.data["boot"], node.dist)
             else:
-                labels[node.name] = "(%.2f) %f" % (
-                    node.data["boot"], node.dist)
+                labels[node.name] = "(%.2f) %f" % (node.data["boot"], node.dist)
 
     draw_tree(tree, labels, *args, **kargs)
 
