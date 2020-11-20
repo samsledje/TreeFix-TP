@@ -1,0 +1,3 @@
+[console_scripts]
+treefix-tp = treefix_tp.__main__:main
+
