@@ -8,39 +8,22 @@
 #
 
 import os, sys, shutil
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 
 # version control
-sys.path.insert(0, os.path.realpath(
-            os.path.join(os.path.dirname(__file__), "python")))
-from treefix import treefixTP
-VERSION = treefixTP.PROGRAM_VERSION_TEXT
-
-# find correct ranger-dtl-U executable
-if not os.path.exists('bin/fitch.linux'):
-    if sys.platform == 'darwin':
-        ranger_dtl_script = 'bin/fitch.linux'
-    elif sys.platform == 'cygwin':  #windows
-        ranger_dtl_script = 'bin/fitch.linux'
-    else:
-        ranger_dtl_script = 'bin/fitch.linux'
-    shutil.copy(ranger_dtl_script, 'bin/fitch.linux')
-
-# platform dependency
-extra_link_args = []
-if sys.platform != 'darwin':
-    extra_link_args.append('-s')
+import treefix_tp
+VERSION = treefix_tp.PROGRAM_VERSION_TEXT
 
 # raxml sources
-srcs = [os.path.join('src/raxml',fn) for fn in os.listdir('src/raxml')
+srcs = [os.path.join('treefix_tp/pyRAxML/src',fn) for fn in os.listdir('treefix_tp/pyRAxML/src')
         if (not os.path.isdir(fn)) and fn.endswith('.c')]
-raxml_module = Extension('treefix_raxml._raxml',
-                         sources=['python/treefix_raxml/raxml.i'] + srcs,
-                         extra_link_args=extra_link_args
+raxml_module = Extension('treefix_tp.pyRAxML._raxml',
+                         sources=['treefix_tp/pyRAxML/raxml.i',
+                                  'treefix_tp/pyRAxML/tmaps.i'] + srcs,
                          )
-                         
+
 setup(
-    name='treefixTP',
+    name='TreeFix-TP',
     version=VERSION,
     description='TreeFix-TP',
     long_description = """
@@ -60,19 +43,14 @@ setup(
           'Programming Language :: Python',
           'Topic :: Education',
           ],
-
-    package_dir = {'': 'python'},
-    packages=['treefix',
-              'treefix.models',
-              'treefix.deps',
-              'treefix.deps.rasmus',
-              'treefix.deps.compbio',
-	      'treefix_raxml',
-	      'treefix_raxml.deps.rasmus',
-	      'treefix_raxml.deps.compbio'],
+    packages = find_packages(),
     py_modules=[],
-    data_files=[('bin', ['bin/fitch.linux', 'bin/log_parser', 'bin/treefix_for_TP'])],
-    scripts=['bin/treefixTP'],
+    data_files=[('bin', ['bin/fitch.linux', 'bin/log_parser.py'])],
+    entry_points={
+        "console_scripts": [
+            "treefix-tp = treefix_tp.__main__:main",
+            ],
+        },
     ext_modules=[raxml_module]
     )
 
