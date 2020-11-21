@@ -33,9 +33,11 @@ void delete_tree(tree *tr)
 }
 
 /* wrapper for tree input and output */
-void read_tree(FILE *fp, tree *tr, analdef *adef)
+void read_tree(char *treeFile, tree *tr, analdef *adef)
 {
-    treeReadLen(fp, tr, adef);
+    FILE *treeFileObj = fopen(treeFile, "r");
+    treeReadLen(treeFileObj, tr, adef);
+    fclose(treeFileObj);
 }
 
 char *tree_to_string(tree *tr, analdef *adef)

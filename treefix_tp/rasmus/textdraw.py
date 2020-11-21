@@ -2,7 +2,7 @@
 import sys
 
 # rasmus libs
-import treefix_tp.rasmus.util
+import treefix_tp.rasmus.util as util
 
 
 class TextCanvas:
@@ -26,7 +26,7 @@ class TextCanvas:
         dx = (x2 - x1) / float(nsamples)
         dy = (y2 - y1) / float(nsamples)
 
-        for i in xrange(nsamples):
+        for i in range(nsamples):
             self.set(x1 + i * dx, y1 + i * dy, char)
 
     def text(self, x, y, text, dir="horizontal", width=10000):
@@ -34,7 +34,7 @@ class TextCanvas:
         y2 = 0
 
         if dir == "horizontal":
-            for i in xrange(len(text)):
+            for i in range(len(text)):
                 if text[i] == "\n":
                     x2 = 0
                     y2 += 1
@@ -42,7 +42,7 @@ class TextCanvas:
                     x2 += 1
                     self.set(x + x2, y + y2, text[i])
         elif dir == "vertical":
-            for i in xrange(len(text)):
+            for i in range(len(text)):
                 if text[i] == "\n" or x2 > width:
                     y2 = 0
                     x2 += 1

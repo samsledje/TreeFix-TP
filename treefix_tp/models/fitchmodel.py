@@ -21,9 +21,9 @@ from treefix_tp.compbio import phylo
 # command
 
 # uses fitch.linux
-##cmd = os.path.join(os.path.realpath(os.path.dirname(__file__)),
-##                   "fitch.linux")
-##cmd = "fitch.linux"
+CMD = os.path.join(os.path.realpath(os.path.dirname(__file__)),
+                   "../../bin/fitch.linux")
+#CMD = "fitch.linux"
 
 patt = r"Score: (?P<cost>\d+)"
 
@@ -37,7 +37,7 @@ class FitchModel(CostModel):
         """Initializes the model"""
         CostModel.__init__(self, extra)
 
-        self.VERSION = "0.0.1"
+        self.VERSION = "1.0"
         self.mincost = 0
 
         parser = optparse.OptionParser(prog="FitchModel")
@@ -45,7 +45,7 @@ class FitchModel(CostModel):
             "--cmd",
             dest="cmd",
             metavar="<fitch command>",
-            default="fitch.linux",
+            default=CMD,
             help='fitch command (default: "fitch")',
         )
         parser.add_option(

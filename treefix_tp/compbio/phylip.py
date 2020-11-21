@@ -171,16 +171,13 @@ def write_phylip_align(out, seqs, strip_names=True):
     validate_seqs(seqs)
 
     if strip_names:
-        print >> out, len(seqs), len(seqs.values()[0])
+        print(len(seqs), len(seqs.values()[0]), file=out)
         for i, name in enumerate(seqs.keys()):
-            print >> out, "%8s  %s" % (phylip_padding(str(i), 8), seqs[name])
+            print("%8s  %s" % (phylip_padding(str(i), 8), seqs[name]), file=out)
     else:
-        print >> out, len(seqs), len(seqs.values()[0])
+        print(len(seqs), len(seqs.values()[0]), file=out)
         for i, name in enumerate(seqs.keys()):
-            if name <= 8:
-                print >> out, "%8s  %s" % (name, seqs[name])
-            else:
-                print >> out, "%s  %s" % (name, seqs[name])
+            print("%s  %s" % (name, seqs[name]), file=out)
 
     return seqs.keys()
 

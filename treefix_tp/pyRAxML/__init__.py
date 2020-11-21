@@ -41,15 +41,14 @@ class RAxML:
 
     def read_tree(self, tree):
         """Read treelib tree to raxml tr"""
-        r, w = os.pipe()
-        fr, fw = os.fdopen(r, "r"), os.fdopen(w, "w")
+        tmpPath = "/tmp/treefix_tp_to_raxml.tre"
+        fw = open(tmpPath,"w+")
 
         tree.write(fw, oneline=True)
         fw.write("\n")
         fw.close()
 
-        raxml.read_tree(fr, self.tr, self.adef)
-        fr.close()
+        raxml.read_tree(tmpPath, self.tr, self.adef)
 
     def draw_raxml_tree(self, *args, **kargs):
         """Draw raxml tr -- adef and tr must have been previously defined"""
@@ -65,7 +64,7 @@ class RAxML:
 
         # initialize parameters based on input
         cmd = "raxmlHPC -t %s -s %s %s" % (treefile, seqfile, extra)
-        raxml.init_program(self.adef, self.tr, cmd.split(" "))
+        raxml.init_program(self.adef, self.tr, [i.encode('utf-8') for i in cmd.split(" ")])
 
         # optimize
         raxml.optimize_model(self.adef, self.tr)

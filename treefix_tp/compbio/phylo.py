@@ -538,7 +538,7 @@ def count_dup_loss_tree(tree, stree, gene2species, recon=None, events=None):
     appear += 1
 
     # count dups
-    for node, event in events.iteritems():
+    for node, event in events.items():
         if event == "dup":
             recon[node].data["dup"] += 1
             dup += 1
@@ -590,7 +590,7 @@ def count_dup_loss_trees(trees, stree, gene2species):
 
 def write_event_tree(stree, out=sys.stdout):
     labels = {}
-    for name, node in stree.nodes.iteritems():
+    for name, node in stree.nodes.items():
         labels[name] = "[%s]\nD=%d,L=%d;\nG=%d;" % (
             str(name),
             node.data["dup"],
@@ -645,7 +645,7 @@ def fix_ils_errors(events, dupcons, newCopy=True):
     if newCopy:
         events = events.copy()
 
-    for node, score in dupcons.iteritems():
+    for node, score in dupcons.items():
         if score == 0:
             events[node] = "spec"
     return events
@@ -890,7 +890,7 @@ def get_gene_dups(tree, events):
     """Returns duplications as gene name tuples"""
     return set(
         tuple(sorted([tuple(sorted(child.leaf_names())) for child in node.children]))
-        for node, kind in events.iteritems()
+        for node, kind in events.items()
         if kind == "dup"
     )
 
@@ -899,7 +899,7 @@ def get_speciations(tree, events):
     """Returns speciations as gene name tuples"""
     return set(
         tuple(sorted([tuple(sorted(child.leaf_names())) for child in node.children]))
-        for node, kind in events.iteritems()
+        for node, kind in events.items()
         if kind == "spec"
     )
 
@@ -939,7 +939,7 @@ def hash_tree(tree, smap=lambda x: x, compose=hash_tree_compose):
         if node.is_leaf():
             return smap(node.name)
         else:
-            child_hashes = map(walk, node.children)
+            child_hashes = [walk(i) for i in node.children]
             child_hashes.sort()
             return compose(child_hashes, node)
 
@@ -1006,7 +1006,7 @@ def brecon2recon_events(brecon):
     recon = {}
     events = {}
 
-    for node, branch_path in brecon.iteritems():
+    for node, branch_path in brecon.items():
         recon[node] = branch_path[-1][0]
         events[node] = branch_path[-1][1]
 
@@ -1019,7 +1019,7 @@ def recon_events2brecon(recon, events):
     """
 
     brecon = {}
-    for node, snode in recon.iteritems():
+    for node, snode in recon.items():
         branch = []
         if node.parent:
             sparent = recon[node.parent]
@@ -1159,7 +1159,7 @@ def write_brecon(filename, brecon):
     """
 
     out = util.open_stream(filename, "w")
-    for node, branch_path in brecon.iteritems():
+    for node, branch_path in brecon.items():
         out.write(str(node.name))
         for snode, event in branch_path:
             out.write("\t" + str(snode.name) + "\t" + event)
@@ -1217,7 +1217,7 @@ def find_bevents(brecon):
 
     """
 
-    for node, branch_path in brecon.iteritems():
+    for node, branch_path in brecon.items():
         for i, (snode, event) in enumerate(branch_path):
             if event == "dup":
                 yield (node, "v", "dup", snode)
@@ -1561,7 +1561,7 @@ def propose_random_nni(tree):
 
     # find edges for NNI
     while True:
-        node1 = random.sample(nodes, 1)[0]
+        node1 = random.sample(list(nodes), 1)[0]
         if not node1.is_leaf() and node1.parent is not None:
             break
 
@@ -1685,7 +1685,7 @@ def propose_random_spr(tree):
     # find subtree (a) to cut off (any node that is not root or child of root)
     nodes = tree.nodes.values()
     while True:
-        a = random.sample(nodes, 1)[0]
+        a = random.sample(list(nodes), 1)[0]
         if a.parent is not None and a.parent.parent is not None:
             break
     subtree = a
@@ -1698,7 +1698,7 @@ def propose_random_spr(tree):
     # choose newpos (e)
     e = None
     while True:
-        e = random.sample(nodes, 1)[0]
+        e = random.sample(list(nodes), 1)[0]
 
         # test if e is a valid choice
         if e.parent is None or e == a or e == c or e == b:
@@ -2269,7 +2269,7 @@ def find_splits(tree, rooted=False):
 
     # build splits list
     splits = []
-    for leaves in descendants.itervalues():
+    for leaves in descendants.values():
         if 1 < len(leaves) and (rooted or len(leaves) < nall_leaves - 1):
             set1 = tuple(sorted(leaves))
             set2 = tuple(sorted(all_leaves - leaves))
@@ -2385,7 +2385,7 @@ def add_bootstraps(tree, trees, rooted=False):
             split_counts[split] += 1
 
     counts = {}
-    for split, count in split_counts.iteritems():
+    for split, count in split_counts.items():
         counts[split[0]] = count
         counts[split[1]] = count
 
@@ -2836,7 +2836,7 @@ def sample_dlt_gene_tree(
                 age = stimes[snode] + dist - time
 
                 others = []
-                for snode2, sage in stimes.iteritems():
+                for snode2, sage in stimes.items():
                     if sage < age < sage + snode2.dist and snode2 != snode:
                         others.append(snode2)
 
@@ -2963,7 +2963,7 @@ def sample_dltr_gene_tree(
             # transfer
             # choose destination species
             others = []
-            for snode2, sage in stimes.iteritems():
+            for snode2, sage in stimes.items():
                 if sage < age < sage + snode2.dist and snode2 != snode:
                     others.append(snode2)
             dest = random.sample(others, 1)[0]
@@ -2981,7 +2981,7 @@ def sample_dltr_gene_tree(
             # recomb
             # choose destination species
             others = []
-            for snode2, sage in stimes.iteritems():
+            for snode2, sage in stimes.items():
                 if sage < age < sage + snode2.dist and snode2 != snode:
                     others.append(snode2)
             dest = random.sample(others, 1)[0]

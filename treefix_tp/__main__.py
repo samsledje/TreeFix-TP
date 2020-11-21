@@ -133,7 +133,7 @@ def build_parser():
                         default="-",
                         help="log filename.  Use '-' to display on stdout.")
     parser.add_option_group(grp_info)
-    
+
     grp_debug = optparse.OptionGroup(parser, "Debug")
     grp_debug.add_option("--debug", dest="debug",
                          metavar="<debug mode>",
@@ -151,7 +151,7 @@ def main():
     # parse arguments
     parser = build_parser()
     options, args = parser.parse_args()
-    
+
     if len(args) == 0:
         parser.print_help()
         sys.exit(1)
@@ -159,11 +159,11 @@ def main():
     if len(args) == 0:
         parser.print_help()
         sys.exit(1)
-        
+
     # required options
     common.check_req_options(parser, options, clade=False, species=False)
     options.verbose = int(options.verbose)
-    
+
     # debug options
     if options.debug < 0 or options.debug > 7:
         parser.error("--debug must be in {0,...,7}: %d" % options.debug)
@@ -194,12 +194,15 @@ def main():
     if options.reroot:
         print("-r/--reroot is deprecated (gene trees are automatically rerooted)",file=sys.stederr)
 
+    options.boottreeext = ".treefix.boot.trees"
+    options.usertreeext = None
+
     #log
     print("TreeFix-TP version: %s\n" % VERSION)
     print("TreeFix-TP called as:")
-    print(''.join(sys.argv))
-    
-    treefix.main(options, args)
+    print(' '.join(sys.argv))
+
+    treefix.treefix(options, args)
 
 # main function
 if __name__ == "__main__":

@@ -1022,7 +1022,7 @@ def sql_create_table(cur, table_name, tab, overwrite=True):
     for header in tab.headers:
         t = tab.types[header]
 
-        if issubclass2(t, basestring):
+        if issubclass2(t, str):
             cols.append("%s TEXT" % header)
         elif issubclass2(t, int):
             cols.append("%s INTEGER" % header)
@@ -1082,7 +1082,7 @@ def sqlput(dbfile, table_name, tab, overwrite=True, create=True):
     for header in tab.headers:
         t = tab.types[header]
 
-        if issubclass2(t, basestring) or not (
+        if issubclass2(t, str) or not (
             issubclass2(t, int) or issubclass2(t, float) or issubclass2(t, bool)
         ):
             text.add(header)

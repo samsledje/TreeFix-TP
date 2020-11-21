@@ -29,255 +29,7 @@ from treefix_tp import common
 from treefix_tp.rasmus import treelib, util, timer
 from treefix_tp.compbio import phylo, alignlib
 
-# ==========================================================
-# parser
-
 VERSION = treefix_tp.PROGRAM_VERSION_TEXT
-
-
-def parse_args():
-    """parse input arguments"""
-
-    parser = optparse.OptionParser(
-        usage="usage: %prog [options] <gene tree> ...",
-        version="%prog " + VERSION,
-        description="TreeFix is a phylogenetic program for improving gene tree reconstructions using "
-        + "a test statistic for likelihood equivalence and a species tree aware cost function. "
-        + "See http://compbio.mit.edu/treefix for details.",
-        epilog="Written by Yi-Chieh Wu (yjw@mit.edu), Massachusetts Institute of Technology. "
-        + "(c) 2011. Released under the terms of the GNU General Public License.",
-    )
-
-    grp_io = optparse.OptionGroup(parser, "Input/Output")
-    common.add_common_options(
-        grp_io, infiles=True, reroot=True, stree=False, smap=False, alignext=True
-    )
-    grp_io.add_option(
-        "-U",
-        "--usertreeext",
-        dest="usertreeext",
-        metavar="<user tree file extension>",
-        help="check if user tree is visited in search",
-    )
-    grp_io.add_option(
-        "-o",
-        "--oldext",
-        dest="oldext",
-        metavar="<old tree file extension>",
-        default=".tree",
-        help='old tree file extension (default: ".tree")',
-    )
-    grp_io.add_option(
-        "-n",
-        "--newext",
-        dest="newext",
-        metavar="<new tree file extension>",
-        default=".treefix.tree",
-        help='new tree file extension (default: ".treefix.tree")',
-    )
-    grp_io.add_option(
-        "-B",
-        "--boottreeext",
-        dest="boottreeext",
-        metavar="<bootstrap trees file extension>",
-        default=".treefix.boot.trees",
-        help='bootstrap trees file extension (default: ".treefix.boot.trees")',
-    )
-    parser.add_option_group(grp_io)
-
-    default_module = "treefix.models.raxmlmodel.RAxMLModel"
-    grp_model = optparse.OptionGroup(parser, "Likelihood Model")
-    grp_model.add_option(
-        "-m",
-        "--module",
-        dest="module",
-        metavar="<module for likelihood calculations>",
-        default=default_module,
-        help="module for likelihood calculations " + '(default: "%s")' % default_module,
-    )
-    grp_model.add_option(
-        "-e",
-        "--extra",
-        dest="extra",
-        metavar="<extra arguments to module>",
-        help="extra arguments to pass to program",
-    )
-    parser.add_option_group(grp_model)
-
-    grp_test = optparse.OptionGroup(parser, "Likelihood Test")
-    grp_test.add_option(
-        "-t",
-        "--test",
-        dest="test",
-        metavar="<test statistic>",
-        choices=["AU", "NP", "BP", "KH", "SH", "WKH", "WSH"],
-        default="SH",
-        help='test statistic for likelihood equivalence (default: "SH")',
-    )
-    grp_test.add_option(
-        "--alpha",
-        dest="alpha",
-        metavar="<alpha>",
-        default=0.05,
-        type="float",
-        help="alpha threshold (default: 0.05)",
-    )
-    grp_test.add_option(
-        "-p", "--pval", dest="alpha", metavar="<alpha>", type="float", help="same as --alpha"
-    )
-    parser.add_option_group(grp_test)
-
-    default_smodule = "treefix.models.duplossmodel.DupLossModel"
-    grp_smodel = optparse.OptionGroup(parser, "Reconciliation Cost Model")
-    grp_smodel.add_option(
-        "-M",
-        "--smodule",
-        dest="smodule",
-        metavar="<module for species tree aware cost calculations>",
-        default=default_smodule,
-        help="module for species tree aware cost calculations "
-        + '(default: "%s")' % default_smodule,
-    )
-    grp_smodel.add_option(
-        "-E",
-        "--sextra",
-        dest="sextra",
-        metavar="<extra arguments to module>",
-        help="extra arguments to pass to program",
-    )
-    parser.add_option_group(grp_smodel)
-
-    grp_search = optparse.OptionGroup(parser, "Search Options")
-    grp_search.add_option(
-        "-b",
-        "--boot",
-        dest="nboot",
-        metavar="<# bootstraps>",
-        default=1,
-        type="int",
-        help="number of bootstraps to perform (default: 1)",
-    )
-    grp_search.add_option(
-        "-x",
-        "--seed",
-        dest="seed",
-        metavar="<seed>",
-        type="int",
-        help="seed value for random generator",
-    )
-    grp_search.add_option(
-        "--niter",
-        dest="niter",
-        metavar="<# iterations>",
-        default=100,
-        type="int",
-        help="number of iterations (default: 100)",
-    )
-    grp_search.add_option(
-        "--nquickiter",
-        dest="nquickiter",
-        metavar="<# quick iterations>",
-        default=50,
-        type="int",
-        help="number of subproposals (default: 50)",
-    )
-    grp_search.add_option(
-        "--freconroot",
-        dest="freconroot",
-        metavar="<fraction reconroot>",
-        default=0.05,
-        type="float",
-        help="fraction of search proposals to reconroot (default: 0.05)",
-    )
-    grp_search.add_option(
-        "--maxtime",
-        dest="maxtime",
-        metavar="<maximum runtime>",
-        type="int",
-        help="maximum runtime (per tree) in seconds",
-    )
-    parser.add_option_group(grp_search)
-
-    grp_info = optparse.OptionGroup(parser, "Information")
-    common.move_option(parser, "--version", grp_info)
-    common.move_option(parser, "--help", grp_info)
-    grp_info.add_option(
-        "-V",
-        "--verbose",
-        dest="verbose",
-        metavar="<verbosity level>",
-        default="0",
-        choices=["0", "1", "2", "3"],
-        help="verbosity level (0=quiet, 1=low, 2=medium, 3=high)",
-    )
-    grp_info.add_option(
-        "-l",
-        "--log",
-        dest="log",
-        metavar="<log file>",
-        default="-",
-        help="log filename.  Use '-' to display on stdout.",
-    )
-    parser.add_option_group(grp_info)
-
-    grp_debug = optparse.OptionGroup(parser, "Debug")
-    grp_debug.add_option(
-        "--debug",
-        dest="debug",
-        metavar="<debug mode>",
-        default=0,
-        type="int",
-        help="debug mode (octal: 0=normal, "
-        + "1=skips likelihood test, "
-        + "2=skips cost filtering on pool, "
-        + "4=computes likelihood for all trees in pool)",
-    )
-    parser.add_option_group(grp_debug)
-
-    options, args = parser.parse_args()
-
-    # =============================
-    # check arguments
-
-    # input gene tree files
-    treefiles = common.get_input_files(parser, options, args)
-
-    # required options
-    common.check_req_options(parser, options, clade=False, species=False)
-    options.verbose = int(options.verbose)
-
-    # debug options
-    if options.debug < 0 or options.debug > 7:
-        parser.error("--debug must be in {0,...,7}: %d" % options.debug)
-    global debug, DEBUG_SKIP_LIK, DEBUG_SKIP_COST, DEBUG_COMPUTE_ALL_LIK
-    debug = bin(options.debug)[2:].zfill(3)
-    DEBUG_SKIP_LIK = debug[-1] == "1"
-    DEBUG_SKIP_COST = debug[-2] == "1"
-    DEBUG_COMPUTE_ALL_LIK = debug[-3] == "1"
-    if DEBUG_SKIP_LIK and DEBUG_COMPUTE_ALL_LIK:
-        parser.error("cannot set debug flag 4 and 1: %d" % options.debug)
-
-    # other options
-    if options.alpha < 0 or options.alpha > 1:
-        parser.error("--alpha/-p/--pval must be in [0,1]: %.5g" % options.alpha)
-
-    if options.nboot < 1:
-        parser.error("-b/--boot must be >= 1: %d" % options.nboot)
-
-    if options.niter < 1:
-        parser.error("--niter must be >= 1: %d" % options.niter)
-
-    if options.nquickiter < 1:
-        parser.error("--nquickiter must be >= 1: %d" % options.nquickiter)
-
-    if options.freconroot < 0 or options.freconroot > 1:
-        parser.error("--freconroot must be in [0,1]: %d" % options.freconroot)
-
-    if options.reroot:
-        print("-r/--reroot is deprecated (gene trees are automatically rerooted)", file=sys.stederr)
-
-    return options, treefiles
-
 
 # ==========================================================
 # utilities
@@ -310,7 +62,7 @@ except NameError as ne:
 
 def log_tree(gtree, log, oneline=True, writeDists=False):
     """print tree to log"""
-    treeout = StringIO.StringIO()
+    treeout = StringIO()
     if oneline:
         gtree.write(treeout, oneline=oneline)
         log.log("tree: %s\n" % treeout.getvalue())
@@ -343,11 +95,9 @@ def unroot(gtree, newCopy=True):
 # special cases
 
 
-def check_small_tree(gtree, rooted=False):
+def check_small_tree(gtree, rooted=False, options=None):
     """check for small gene tree"""
 
-    # global variables
-    global options
     if options.verbose >= 1:
         global log
 
@@ -376,11 +126,10 @@ def check_small_tree(gtree, rooted=False):
     return False
 
 
-def check_input_tree(gtree, smodule):
+def check_input_tree(gtree, smodule, options=None):
     """check if input gene tree achieved minimum cost"""
 
     # global variables
-    global options
     global DEBUG_SKIP_LIK, DEBUG_SKIP_COST, DEBUG_COMPUTE_ALL_LIK
     global gtimer, runtime_prop, runtime_reconroot, runtime_cost, runtime_stat
     if options.verbose >= 1:
@@ -418,11 +167,11 @@ def check_input_tree(gtree, smodule):
 # search routines
 
 
-def search_landscape(gtree, aln, module, smodule, rooted, seednum=1):
+def search_landscape(gtree, aln, module, smodule, rooted, seednum=1, options=None):
     """search gene tree landscape"""
 
     # global variables
-    global options, seed
+    global  seed
     if options.verbose >= 1:
         global log
     global DEBUG_SKIP_LIK, DEBUG_SKIP_COST, DEBUG_COMPUTE_ALL_LIK
@@ -497,7 +246,7 @@ def search_landscape(gtree, aln, module, smodule, rooted, seednum=1):
     nemptypools = 0
     ndiffrecon = 0
     nrecon = 0
-    for i in xrange(options.niter):  # outer search
+    for i in range(options.niter):  # outer search
         # end early if maxtime reached
         if (options.maxtime is not None) and (timer.time.time() - runtime_start > options.maxtime):
             if options.verbose >= 1:
@@ -516,7 +265,7 @@ def search_landscape(gtree, aln, module, smodule, rooted, seednum=1):
             nprnd.seed(seed + i * 1024 * seednum)
             randvec = nprnd.random(2 * options.nquickiter)
         else:
-            randvec = [random.random() for _ in xrange(2 * options.nquickiter)]
+            randvec = [random.random() for _ in range(2 * options.nquickiter)]
 
         # search
         ntrees = 0
@@ -524,7 +273,7 @@ def search_landscape(gtree, aln, module, smodule, rooted, seednum=1):
         mincost_pool = mincost
 
         # note that reconroot is NOT propagated through the subproposals - doing so messes up the unique filter
-        for j in xrange(options.nquickiter):  # inner search
+        for j in range(options.nquickiter):  # inner search
             # propose tree
             gtimer.start()
             tree = search.propose()
@@ -612,12 +361,12 @@ def search_landscape(gtree, aln, module, smodule, rooted, seednum=1):
         # remove trees with higher costs
         if options.verbose >= 2:
             log.log("pool: size\t= %d" % len(pool))
-        pool = pool.values()
+        pool = list(pool.values())
         if DEBUG_SKIP_COST:
             fpool = pool
             nfpool = len(fpool)
         else:
-            fpool = filter(lambda gtree, cost, ndx: cost <= mincost and cost < cost0, pool)
+            fpool = list(filter(lambda pool_obj: pool_obj[1] <= mincost and pool_obj[1] < cost0, pool))
             nfpool = len(fpool)
             if options.verbose >= 2:
                 log.log("pool: filtered size\t= %d" % nfpool)
@@ -764,7 +513,7 @@ def search_landscape(gtree, aln, module, smodule, rooted, seednum=1):
 # main
 
 
-def main(options, treefiles):
+def treefix(options, treefiles):
     """main"""
 
     # global variables
@@ -890,7 +639,8 @@ def main(options, treefiles):
         # read input tree
         try:
             gtrees = treelib.read_trees(treefile)
-        except:
+        except Exception as e:
+            print(e)
             print('ERROR: problem reading gene tree: "%s"' % treefile,file=sys.stderr)
             return 1
         if len(gtrees) != 1:
@@ -920,7 +670,7 @@ def main(options, treefiles):
         # special cases -- no need to search
         #   small gene tree
         #   input gene tree achieved minimum cost
-        if check_small_tree(gtree, rooted=rooted) or check_input_tree(gtree, smodule):
+        if check_small_tree(gtree, rooted=rooted, options=options) or check_input_tree(gtree, smodule,options=options):
             # output tree
             gtree.write(outfile, oneline=False)
 
@@ -939,7 +689,8 @@ def main(options, treefiles):
         # read alignment
         try:
             aln = alignlib.fasta.read_fasta(alnfile)
-        except:
+        except Exception as e:
+            print(e)
             print('ERROR: problem reading alignment: "%s"' % alnfile, file=sys.stderr)
             return 1
         if set(aln) != set(gtree.leaf_names()):
@@ -968,7 +719,7 @@ def main(options, treefiles):
             out = util.open_stream(boottreefile, "w")
 
         # main algorithm
-        for bootnum in xrange(options.nboot):  # bootstrap search
+        for bootnum in range(options.nboot):  # bootstrap search
             # end early if maxtime reached
             if (options.maxtime is not None) and (
                 timer.time.time() - runtime_start > options.maxtime
@@ -988,14 +739,14 @@ def main(options, treefiles):
                     nprnd.seed(seed + bootnum * 4096)
                     cols = nprnd.randint(alnlen, size=alnlen)
                 else:
-                    cols = [random.randint(0, alnlen - 1) for _ in xrange(alnlen)]
+                    cols = [random.randint(0, alnlen - 1) for _ in range(alnlen)]
                 baln = alignlib.subalign(aln, cols)
             else:
                 baln = aln
 
             # search
             mintree = search_landscape(
-                gtree, baln, module, smodule, rooted, seednum=bootnum + boot + 1
+                gtree, baln, module, smodule, rooted, seednum=bootnum + boot + 1, options=options
             )
 
             # output bootstrap tree
@@ -1016,7 +767,7 @@ def main(options, treefiles):
                 log.log("")
 
             # search
-            mintree = search_landscape(gtree, aln, module, smodule, rooted)
+            mintree = search_landscape(gtree, aln, module, smodule, rooted, options=options)
 
             # add bootstraps
             phylo.add_bootstraps(mintree, treelib.iter_trees(boottreefile), rooted=True)
@@ -1046,8 +797,3 @@ def main(options, treefiles):
     # close log
     if options.verbose >= 1 and options.log != "-":
         outlog.close()
-
-
-# main function
-if __name__ == "__main__":
-    sys.exit(main())

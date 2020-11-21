@@ -14,7 +14,7 @@ from io import StringIO
 
 # rasmus libs
 import treefix_tp.rasmus.util as util
-import treefix_tp.rasmus.textdraw
+import treefix_tp.rasmus.textdraw as textdraw
 import treefix_tp.rasmus.treelib_parser
 
 # ============================================================================
@@ -216,7 +216,7 @@ class Tree(object):
 
     def __iter__(self):
         """Iterate through nodes of tree"""
-        return self.nodes.itervalues()
+        return iter(self.nodes.values())
 
     def __len__(self):
         """Returns number of nodes in tree"""
@@ -443,7 +443,7 @@ class Tree(object):
 
     def leaf_names(self, node=None):
         """Returns the leaf names of the tree in order"""
-        return map(lambda x: x.name, self.leaves(node))
+        return [x.name for x in self.leaves(node)]
 
     def ancestors(self, node):
         """Returns the ancestors in order"""
@@ -476,20 +476,20 @@ class Tree(object):
 
     def copy_node_data(self, tree):
         """Copy node data to another tree"""
-        for name, node in self.nodes.iteritems():
+        for name, node in self.nodes.items():
             if name in tree.nodes:
                 node.data = copy.copy(tree.nodes[name].data)
         self.set_default_data()
 
     def set_default_data(self):
         """Set default values in each node's data"""
-        for node in self.nodes.itervalues():
-            for key, val in self.default_data.iteritems():
+        for node in self.nodes.values():
+            for key, val in self.default_data.items():
                 node.data.setdefault(key, val)
 
     def clear_data(self, *keys):
         """Clear tree data"""
-        for node in self.nodes.itervalues():
+        for node in self.nodes.values():
             if len(keys) == 0:
                 node.data = {}
             else:
@@ -648,7 +648,7 @@ def tokenize_newick(infile):
         while True:
             yield infile.read(1)
 
-    if not isinstance(infile, basestring):
+    if not isinstance(infile, str):
         infile = iter_stream(infile)
     else:
         infile = iter(infile)
@@ -937,7 +937,7 @@ def read_newick_ply(filename, readData=None, tree=None):
     tree.nodes[tree.root.name] = tree.root
 
     # test for bootstrap presence
-    for node in tree.nodes.itervalues():
+    for node in tree.nodes.values():
         if "boot" in node.data:
             tree.default_data["boot"] = 0
             break
@@ -1075,7 +1075,7 @@ def read_parent_tree(treefile, labelfile=None, labels=None, tree=None):
 
     elif labels is None:
         nitems = (len(lines) + 1) / 2
-        labels = map(str, range(nitems))
+        labels = [str(i) for i in range(nitems)]
 
     tree.make_root()
 
@@ -1143,7 +1143,7 @@ def write_parent_tree(treefile, tree, labels=None):
 
     # build ptree array
     ptree = [0] * len(ids)
-    for node, idname in ids.iteritems():
+    for node, idname in ids.items():
         if node.parent is not None:
             ptree[idname] = ids[node.parent]
         else:
@@ -1165,7 +1165,7 @@ def parse_nhx_comment(comment):
 
 def format_nhx_comment(data):
     """Format a NHX comment"""
-    return "[&&NHX:" + ":".join("%s=%s" % (k, v) for k, v in data.iteritems()) + "]"
+    return "[&&NHX:" + ":".join("%s=%s" % (k, v) for k, v in data.items()) + "]"
 
 
 def parse_nhx_data(text):
@@ -1390,7 +1390,7 @@ def tree2graph(tree):
     for name in tree.nodes:
         mat[name] = {}
 
-    for name, node in tree.nodes.iteritems():
+    for name, node in tree.nodes.items():
         for child in node.children:
             mat[name][child.name] = child.dist
 
@@ -1478,7 +1478,7 @@ def remove_exposed_internal_nodes(tree, leaves=None):
         # wether to keep it
         stay = set()
         for leaf in tree.leaves():
-            if isinstance(leaf.name, basestring):
+            if isinstance(leaf.name, str):
                 stay.add(leaf)
 
     # post order traverse tree
@@ -1935,7 +1935,7 @@ def parent_table2tree(ptable, data_cols=[], convert_names=True):
             node.data[col] = val
 
     # link up parents
-    for node, parent_name in parents.iteritems():
+    for node, parent_name in parents.items():
         if parent_name == -1:
             tree.root = node
         else:
@@ -2254,7 +2254,7 @@ def layout_tree_vertical(layout, offset=None, root=0, leaves=None, ydir=-1):
                     offset = root - ydir * layout[node][0]
                     break
 
-    for node, (x, y) in layout.iteritems():
+    for node, (x, y) in layout.items():
         layout[node] = [y, offset + ydir * x]
     return layout
 
