@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# setup for TreeFix-VP library packages
+# setup for TreeFix-TP library packages
 #
 # use the following to install:
 #   python setup.py build
@@ -8,46 +8,29 @@
 #
 
 import os, sys, shutil
-from distutils.core import setup, Extension
+from setuptools import setup, Extension, find_packages
 
 # version control
-sys.path.insert(0, os.path.realpath(
-            os.path.join(os.path.dirname(__file__), "python")))
-from treefix import treefixVP
-VERSION = treefixVP.PROGRAM_VERSION_TEXT
-
-# find correct ranger-dtl-U executable
-if not os.path.exists('bin/fitch.linux'):
-    if sys.platform == 'darwin':
-        ranger_dtl_script = 'bin/fitch.linux'
-    elif sys.platform == 'cygwin':  #windows
-        ranger_dtl_script = 'bin/fitch.linux'
-    else:
-        ranger_dtl_script = 'bin/fitch.linux'
-    shutil.copy(ranger_dtl_script, 'bin/fitch.linux')
-
-# platform dependency
-extra_link_args = []
-if sys.platform != 'darwin':
-    extra_link_args.append('-s')
+import treefix_tp
+VERSION = treefix_tp.PROGRAM_VERSION_TEXT
 
 # raxml sources
-srcs = [os.path.join('src/raxml',fn) for fn in os.listdir('src/raxml')
+srcs = [os.path.join('treefix_tp/pyRAxML/src',fn) for fn in os.listdir('treefix_tp/pyRAxML/src')
         if (not os.path.isdir(fn)) and fn.endswith('.c')]
-raxml_module = Extension('treefix_raxml._raxml',
-                         sources=['python/treefix_raxml/raxml.i'] + srcs,
-                         extra_link_args=extra_link_args
+raxml_module = Extension('treefix_tp.pyRAxML._raxml',
+                         sources=['treefix_tp/pyRAxML/raxml.i',
+                                  'treefix_tp/pyRAxML/tmaps.i'] + srcs,
                          )
-                         
+
 setup(
-    name='treefixVP',
+    name='TreeFix-TP',
     version=VERSION,
-    description='TreeFix-VP',
+    description='TreeFix-TP',
     long_description = """
             """,
     author='Mukul Bansal, Samuel Sledzieski, Yi-Chieh Wu',
     author_email='samuel.sledzieski@uconn.edu',
-    url='https://www.github.com/samsledje/treefixVP',
+    url='https://www.github.com/samsledje/TreeFix-TP',
 
     classifiers=[
           'Development Status :: 5 - Production/Stable',
@@ -60,18 +43,14 @@ setup(
           'Programming Language :: Python',
           'Topic :: Education',
           ],
-
-    package_dir = {'': 'python'},
-    packages=['treefix',
-              'treefix.models',
-              'treefix.deps',
-              'treefix.deps.rasmus',
-              'treefix.deps.compbio',
-	      'treefix_raxml',
-	      'treefix_raxml.deps.rasmus',
-	      'treefix_raxml.deps.compbio'],
+    packages = find_packages(),
     py_modules=[],
-    scripts=['bin/treefix_for_VP', 'bin/treefixVP', 'bin/fitch.linux', 'bin/treefixVP'],
+    data_files=[('bin', ['bin/fitch.linux', 'bin/log_parser.py'])],
+    entry_points={
+        "console_scripts": [
+            "treefix-tp = treefix_tp.__main__:main",
+            ],
+        },
     ext_modules=[raxml_module]
     )
 

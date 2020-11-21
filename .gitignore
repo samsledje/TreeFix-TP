@@ -1,1 +1,7 @@
+build/**
+dist/**
 *.pyc
+*.egg-info
+**/*.ipynb_checkpoints
+docs/treefix-vp-manual.zip
+docs/TreeFixVP-Manual.tex

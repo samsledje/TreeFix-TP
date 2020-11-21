@@ -1,0 +1,4 @@
+include treefix_tp/pyRAxML/tmaps.i
+include src/raxml/axml.h
+include src/raxml/globalVariables.h
+include examples/*
