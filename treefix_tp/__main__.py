@@ -32,7 +32,7 @@ def build_parser():
 
         epilog =
              "Written by Samuel Sledzieski (samuel.sledzieski@uconn.edu) and Mukul Bansal (mukul.bansal@uconn.edu), University of Connecticut. "+
-             "(c) 2018. Released under the terms of the GNU General Public License."+
+             "(c) 2020. Released under the terms of the GNU General Public License."+
              "                              "+
              "Treefix written by Yi-Chieh Wu (yjw@mit.edu), Massachusetts Institute of Technology. " +
              "(c) 2011. Released under the terms of the GNU General Public License. ")
