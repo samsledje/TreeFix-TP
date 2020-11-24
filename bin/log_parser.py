@@ -10,7 +10,7 @@ NAME = 'TreeFix Log Parser'
 AUTHOR = 'Samuel Sledzieski'
 VERSION = '1.0'
 
-parser = optparse.OptionParser(usage = 'python3 treefix_log_parser.py [options] <log file>')
+parser = optparse.OptionParser(usage = 'python treefix_log_parser.py [options] <log file>')
 parser.add_option('--out', dest='out_path', default=None, help='Path for output')
 parser.add_option('--near', dest='near_percent', default=20, help='Trees within <--near>% of the optimal cost will be captured')
 parser.add_option('--true', dest='true_tree_path', default=None, help='Can provide a true tree to compare multiple optimal trees with')

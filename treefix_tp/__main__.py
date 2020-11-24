@@ -40,8 +40,8 @@ def build_parser():
     grp_io = optparse.OptionGroup(parser, "Input/Output")
     grp_io.add_option("-A","--alignext", dest="alignext",
                       metavar="<alignment file extension>",
-                      default=".align",
-                      help="alignment file extension (default: \".align\")")
+                      default=".fasta",
+                      help="alignment file extension (default: \".fasta\")")
     grp_io.add_option("-o", "--oldext", dest="oldext",
                       metavar="<old tree file extension>",
                       default=".tree",

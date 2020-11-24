@@ -98,11 +98,8 @@ class FitchModel(CostModel):
 
     def recon_root(self, gtree, newCopy=True, returnCost=False):
         """
-        Returns input gene tree and min DTL cost.
+        Returns input gene tree and min transmission cost.
 
-        Note: The optimally rooted gene tree from ranger-dtl-U
-              contains species names, so this function does NOT reroot.
-              It simply delegates to compute_cost.
         """
         if newCopy:
             gtree = gtree.copy()

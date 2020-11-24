@@ -28,8 +28,8 @@ setup(
     description='TreeFix-TP',
     long_description = """
             """,
-    author='Mukul Bansal, Samuel Sledzieski, Yi-Chieh Wu',
-    author_email='samuel.sledzieski@uconn.edu',
+    author='Samuel Sledzieski, Mukul Bansal',
+    author_email='mukul.bansal@uconn.edu',
     url='https://www.github.com/samsledje/TreeFix-TP',
 
     classifiers=[
@@ -49,6 +49,9 @@ setup(
     entry_points={
         "console_scripts": [
             "treefix-tp = treefix_tp.__main__:main",
+            "ttp-parse-log = treefix_tp.aux.ttp_parse_log:main",
+            "ttp-check-cost = treefix_tp.aux.ttp_check_cost:main",
+            "ttp-check-likelihood = treefix_tp.aux.ttp_check_likelihood:main"
             ],
         },
     ext_modules=[raxml_module]
