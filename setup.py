@@ -49,9 +49,9 @@ setup(
     entry_points={
         "console_scripts": [
             "treefix-tp = treefix_tp.__main__:main",
-            "ttp-parse-log = treefix_tp.aux.ttp_parse_log:main",
-            "ttp-check-cost = treefix_tp.aux.ttp_check_cost:main",
-            "ttp-check-likelihood = treefix_tp.aux.ttp_check_likelihood:main"
+            "ttp-parse-log = treefix_tp.scripts.ttp_parse_log:main",
+            "ttp-check-cost = treefix_tp.scripts.ttp_check_cost:main",
+            "ttp-check-likelihood = treefix_tp.scripts.ttp_check_likelihood:main"
             ],
         },
     ext_modules=[raxml_module]
