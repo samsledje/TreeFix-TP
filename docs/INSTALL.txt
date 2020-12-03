@@ -1,5 +1,5 @@
-TreeFixTP
-Mukul Bansal, Samuel Sledzieski
+TreeFix-TP
+Samuel Sledzieski, Mukul Bansal
 
 Uses source material from:
   TreeFix-DTL
@@ -27,20 +27,15 @@ The following programs are optional:
 - Scipy (0.7.1) -- http://www.scipy.org/
   If Scipy is not found, the program uses internal libraries to approximate
   the normal distribution (so p-values may be slightly off).
-
-Additionally, Python modules are required for computing (1) p-values for likelihood
-equivalence and (2) reconciliation costs.  We have provided default modules
-that compute (1) the p-value based on the Shimodaira-Hasegawa (SH) test statistic with
-RAxML site-wise likelihoods and (2) the duplication-transfer-loss cost
-using ranger-dtl-U reconciliation.  For other modules, see the website.
+- DendroPy (4.5.1) -- Only required for `ttp-parse-log`.
 
 =============================================================================
 INSTALL
 
-Run
-
-python setup.py build
-python setup.py install
+$ git clone https://github.com/samsledje/TreeFix-TP.git
+$ cd TreeFix-TP
+$ python setup.py build
+$ python setup.py install
 
 If you don't have permission to install software on your system, you can install
 into another directory using the --prefix or --home flags to setup.py.
