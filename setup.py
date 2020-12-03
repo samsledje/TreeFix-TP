@@ -26,8 +26,7 @@ setup(
     name='TreeFix-TP',
     version=VERSION,
     description='TreeFix-TP',
-    long_description = """
-            """,
+    long_description = """TreeFix-TP is a program for reconstructing highly accurate transmission phylogenies, i.e., phylogenies depicting the evolutionary relationships between infectious disease strains (viral or bacterial) transmitted between different hosts. TreeFix-TP is designed for scenarios where multiple strain sequences have been sampled from each infected host, and it uses the host assignment of each sequence sample to error-correct a given maximum likelihood phylogeny of the strain sequences. Specifically, given a maximum likelihood phylogeny, the multiple sequence alignment on which the phylogeny was built, and the host assignment for each sequence, TreeFix-TP searches around the maximum likelihood phylogeny to find an alternate error-corrected phylogeny which is equally well-supported by the sequence data and minimizes the number of necessary inter-host transmissions.""",
     author='Samuel Sledzieski, Mukul Bansal',
     author_email='mukul.bansal@uconn.edu',
     url='https://www.github.com/samsledje/TreeFix-TP',
