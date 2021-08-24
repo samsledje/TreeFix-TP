@@ -1,7 +1,7 @@
 # TreeFix-TP
 [![TreeFix-TP](https://img.shields.io/github/v/release/samsledje/TreeFix-TP)](https://github.com/samsledje/TreeFix-TP/releases)
 [![DOI](https://zenodo.org/badge/140891112.svg)](https://zenodo.org/badge/latestdoi/140891112)
-[![License](https://img.shields.io/github/license/samsledje/TreeFix-TP)](https://github.com/samsledje/TreeFix-TP/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/samsledje/TreeFix-TP)](https://github.com/samsledje/TreeFix-TP/blob/master/LICENSE)
 
 
 
